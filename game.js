@@ -3,18 +3,17 @@ const ctx = canvas.getContext("2d");
 
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
-
+let squareSize = Math.min(canvas.width,canvas.height) / 10;
 let centerX = canvas.width / 2;
 let centerY = canvas.height / 2;
-let squareSize = 80;
-let originalSquare = { x: centerX, y: centerY, size: squareSize };
+let originalSquare = { x: centerX-squareSize/2, y: centerY-squareSize/2, size: squareSize };
 let squares = [originalSquare];
 let isDivided = false;
 let objects = [];
 let gameOver = false;
 let score = 0;
 let highScore = localStorage.getItem("highScore") || 0;
-let offset = 100;
+let offset = Math.min(canvas.width,canvas.height) / 8;
 
 // Handle Press (Mouse Down or Touch Start)
 canvas.addEventListener("mousedown", splitSquares);

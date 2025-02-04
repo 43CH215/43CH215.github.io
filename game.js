@@ -194,6 +194,7 @@ function drawGameOverScreen() {
 
     // Add event listener for replay button
     canvas.addEventListener("click", restartGame);
+    canvas.addEventListener("touchstart", restartGame);
 }
 
 // Restart Game

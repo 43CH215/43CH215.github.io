@@ -56,7 +56,7 @@ function spawnObject() {
     if (gameOver) return;
 
     let side = Math.floor(Math.random() * 4);
-    let size = 20;
+    let size = squareSize / 2;
     let speed = 3;
 
     let obj = {

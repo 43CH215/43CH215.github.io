@@ -34,10 +34,10 @@ function splitSquares() {
     if (!isDivided) {
         let newSize = squareSize / 2;
         squares = [
-            { x: centerX - offset, y: centerY - offset, size: newSize },
-            { x: centerX + offset, y: centerY - offset, size: newSize },
-            { x: centerX - offset, y: centerY + offset, size: newSize },
-            { x: centerX + offset, y: centerY + offset, size: newSize }
+            { x: centerX - offset - newSize/2, y: centerY - offset - newSize/2, size: newSize },
+            { x: centerX + offset - newSize/2, y: centerY - offset - newSize/2, size: newSize },
+            { x: centerX - offset - newSize/2, y: centerY + offset - newSize/2, size: newSize },
+            { x: centerX + offset - newSize/2, y: centerY + offset - newSize/2, size: newSize }
         ];
         isDivided = true;
     }
@@ -198,8 +198,16 @@ function drawGameOverScreen() {
 
 // Restart Game
 function restartGame(event) {
-    let clickX = event.clientX;
-    let clickY = event.clientY;
+    let clickX, clickY;
+
+    // Handle touch events
+    if (event.touches) {
+        clickX = event.touches[0].clientX;
+        clickY = event.touches[0].clientY;
+    } else { // Handle mouse events
+        clickX = event.clientX;
+        clickY = event.clientY;
+    }
     let btnX = canvas.width / 2 - 75;
     let btnY = canvas.height / 2 + 80;
     let btnWidth = 150;
@@ -221,10 +229,12 @@ function restartGame(event) {
 
         // Remove event listener to avoid multiple clicks
         canvas.removeEventListener("click", restartGame);
-
+		canvas.addEventListener("touchstart", restartGame);
         // Restart game loop
         gameLoop();
     }
+	
+
 }
 
 // Game Loop

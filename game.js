@@ -57,7 +57,7 @@ function spawnObject() {
 
     let side = Math.floor(Math.random() * 4);
     let size = squareSize / 2;
-    let speed = 3+3*score/1000;
+    let speed = 3+2*score/1000;
 
     let obj = {
         size: size,
@@ -194,6 +194,7 @@ function drawGameOverScreen() {
 
     // Add event listener for replay button
     canvas.addEventListener("click", restartGame);
+    canvas.addEventListener("touchstart", restartGame);
 }
 
 // Restart Game
@@ -229,7 +230,7 @@ function restartGame(event) {
 
         // Remove event listener to avoid multiple clicks
         canvas.removeEventListener("click", restartGame);
-		canvas.addEventListener("touchstart", restartGame);
+        canvas.removeEventListener("touchstart", restartGame);
         // Restart game loop
         gameLoop();
     }

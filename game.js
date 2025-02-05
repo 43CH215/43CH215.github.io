@@ -3,7 +3,9 @@ const ctx = canvas.getContext("2d");
 
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
-let squareSize = Math.min(canvas.width,canvas.height) / 10;
+let nb_elem = 20;
+let unite = Math.min(canvas.width,canvas.height) / nb_elem
+let squareSize = 2*unite-5;
 let centerX = canvas.width / 2;
 let centerY = canvas.height / 2;
 let originalSquare = { x: centerX-squareSize/2, y: centerY-squareSize/2, size: squareSize };
@@ -13,7 +15,26 @@ let objects = [];
 let gameOver = false;
 let score = 0;
 let highScore = localStorage.getItem("highScore") || 0;
-let offset = Math.min(canvas.width,canvas.height) / 8;
+let offset = 2.5*Math.min(canvas.width,canvas.height) / nb_elem;
+
+let bord_x_min;
+let bord_y_min;
+let bord_x_max;
+let bord_y_max;
+
+
+if (canvas.width<canvas.height){
+	bord_x_min = 0;
+	bord_y_min = canvas.height/2 - canvas.width/2;
+	bord_x_max = canvas.width;
+	bord_y_max = canvas.height/2 + canvas.width/2;
+}
+else{
+	bord_x_min = canvas.width/2 - canvas.height/2;
+	bord_y_min = 0;
+	bord_x_max = canvas.width/2 + canvas.height/2;;
+	bord_y_max = canvas.height;
+}
 
 // Handle Press (Mouse Down or Touch Start)
 canvas.addEventListener("mousedown", splitSquares);
@@ -56,8 +77,8 @@ function spawnObject() {
     if (gameOver) return;
 
     let side = Math.floor(Math.random() * 4);
-    let size = squareSize / 2;
-    let speed = 3+2*score/1000;
+    let size = unite;
+    let speed = 3+1*score/1000;
 
     let obj = {
         size: size,
@@ -66,26 +87,26 @@ function spawnObject() {
 
     switch (side) {
         case 0: // Top
-            obj.x = size + Math.random() * (canvas.width-2*size);
-            obj.y = -size;
+            obj.x = bord_x_min+Math.floor(Math.random() * (nb_elem-1))*unite;
+            obj.y = bord_y_min-size;
             obj.vx = 0;
             obj.vy = speed;
             break;
         case 1: // Bottom
-            obj.x = size + Math.random() * (canvas.width-2*size);
-            obj.y = canvas.height + size;
+            obj.x = bord_x_min+Math.floor(Math.random() * (nb_elem-1))*unite;
+            obj.y = bord_y_max + size;
             obj.vx = 0;
             obj.vy = -speed;
             break;
         case 2: // Left
-            obj.x = -size;
-            obj.y = size + Math.random() * (canvas.height-2*size);
+            obj.x = bord_x_min-size;
+            obj.y = bord_y_min+Math.floor(Math.random() * (nb_elem-1))*unite;
             obj.vx = speed;
             obj.vy = 0;
             break;
         case 3: // Right
-            obj.x = canvas.width + size;
-            obj.y = size + Math.random() * (canvas.height-2*size);
+            obj.x = bord_x_max + size;
+            obj.y = bord_y_min+Math.floor(Math.random() * (nb_elem-1))*unite;
             obj.vx = -speed;
             obj.vy = 0;
             break;
@@ -137,7 +158,11 @@ function update() {
 
 // Draw the Game
 function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+
+	
+	ctx.clearRect(0, 0, canvas.width, canvas.height);
+	
 
     // Draw Squares
     ctx.fillStyle = "white";
@@ -150,13 +175,33 @@ function draw() {
     objects.forEach((obj) => {
         ctx.fillRect(obj.x, obj.y, obj.size, obj.size);
     });
-
+	ctx.clearRect(0, 0, bord_x_min, canvas.height);
+	ctx.clearRect(bord_x_max, 0, canvas.width, canvas.height);
+	ctx.clearRect(0, 0, canvas.width, bord_y_min);
+	ctx.clearRect(0, bord_y_max, canvas.width, canvas.height);
+	//Draw lines
+	for (let ix = 0; ix < nb_elem+1; ix++) {
+		ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+		ctx.beginPath(); // Start a new path
+		ctx.moveTo(bord_x_min+ix*unite, bord_y_min); // Move the pen to (30, 50)
+		ctx.lineTo(bord_x_min+ix*unite, bord_y_max);
+		ctx.stroke(); // Render the path
+	}
+	for (let iy = 0; iy < nb_elem+1; iy++) {
+		ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+		ctx.beginPath(); // Start a new path
+		ctx.moveTo(bord_x_min, bord_y_min+iy*unite); // Move the pen to (30, 50)
+		ctx.lineTo(bord_x_max, bord_y_min+iy*unite);
+		ctx.stroke(); // Render the path
+	}
     // Draw Score
     ctx.fillStyle = "white";
     ctx.font = "20px Arial";
     ctx.fillText("Score: " + score, 10, 30);
     ctx.fillText("High Score: " + highScore, 10, 60);
-
+	
+	
+	
     if (gameOver) {
         drawGameOverScreen();
     }
@@ -194,7 +239,7 @@ function drawGameOverScreen() {
 
     // Add event listener for replay button
     canvas.addEventListener("click", restartGame);
-    canvas.addEventListener("touchstart", restartGame);
+	canvas.addEventListener("touchstart", restartGame);
 }
 
 // Restart Game
@@ -230,7 +275,7 @@ function restartGame(event) {
 
         // Remove event listener to avoid multiple clicks
         canvas.removeEventListener("click", restartGame);
-        canvas.removeEventListener("touchstart", restartGame);
+		canvas.removeEventListener("touchstart", restartGame);
         // Restart game loop
         gameLoop();
     }

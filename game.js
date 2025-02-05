@@ -196,9 +196,10 @@ function draw() {
 	}
     // Draw Score
     ctx.fillStyle = "white";
-    ctx.font = "20px Arial";
-    ctx.fillText("Score: " + score, 10, 30);
-    ctx.fillText("High Score: " + highScore, 10, 60);
+    ctx.font = "40px Arial";
+    ctx.fillText(score, 10, 30);
+	//ctx.font = "40px Arial";
+    //ctx.fillText("High Score: " + highScore, 10, 60);
 	
 	
 	
@@ -220,14 +221,14 @@ function endGame() {
 function drawGameOverScreen() {
     ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-
+	ctx.textAlign = "center";
     ctx.fillStyle = "white";
     ctx.font = "40px Arial";
-    ctx.fillText("Game Over!", canvas.width / 2 - 100, canvas.height / 2 - 50);
+    ctx.fillText("Game Over!", canvas.width / 2 , canvas.height / 2 - 50);
 
     ctx.font = "30px Arial";
-    ctx.fillText("Score: " + score, canvas.width / 2 - 50, canvas.height / 2);
-    ctx.fillText("High Score: " + highScore, canvas.width / 2 - 80, canvas.height / 2 + 40);
+    ctx.fillText("Score: " + score, canvas.width / 2, canvas.height / 2);
+    ctx.fillText("High Score: " + highScore, canvas.width / 2, canvas.height / 2 + 40);
 
     // Draw Restart Button
     ctx.fillStyle = "red";
@@ -235,7 +236,7 @@ function drawGameOverScreen() {
 
     ctx.fillStyle = "white";
     ctx.font = "25px Arial";
-    ctx.fillText("Replay", canvas.width / 2 - 35, canvas.height / 2 + 115);
+    ctx.fillText("Replay", canvas.width / 2 , canvas.height / 2 + 115);
 
     // Add event listener for replay button
     canvas.addEventListener("click", restartGame);

@@ -57,7 +57,7 @@ function spawnObject() {
 
     let side = Math.floor(Math.random() * 4);
     let size = squareSize / 2;
-    let speed = 3;
+    let speed = 3+3*score/1000;
 
     let obj = {
         size: size,
@@ -66,26 +66,26 @@ function spawnObject() {
 
     switch (side) {
         case 0: // Top
-            obj.x = Math.random() * canvas.width;
+            obj.x = size + Math.random() * (canvas.width-2*size);
             obj.y = -size;
             obj.vx = 0;
             obj.vy = speed;
             break;
         case 1: // Bottom
-            obj.x = Math.random() * canvas.width;
+            obj.x = size + Math.random() * (canvas.width-2*size);
             obj.y = canvas.height + size;
             obj.vx = 0;
             obj.vy = -speed;
             break;
         case 2: // Left
             obj.x = -size;
-            obj.y = Math.random() * canvas.height;
+            obj.y = size + Math.random() * (canvas.height-2*size);
             obj.vx = speed;
             obj.vy = 0;
             break;
         case 3: // Right
             obj.x = canvas.width + size;
-            obj.y = Math.random() * canvas.height;
+            obj.y = size + Math.random() * (canvas.height-2*size);
             obj.vx = -speed;
             obj.vy = 0;
             break;
@@ -194,7 +194,6 @@ function drawGameOverScreen() {
 
     // Add event listener for replay button
     canvas.addEventListener("click", restartGame);
-    canvas.addEventListener("touchstart", restartGame);
 }
 
 // Restart Game

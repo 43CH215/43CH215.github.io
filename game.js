@@ -319,4 +319,4 @@ function gameLoop() {
 setInterval(spawnObject, 1000);
 
 // Start the Game
-gameLoop();
+setInterval(gameLoop,1000/60);

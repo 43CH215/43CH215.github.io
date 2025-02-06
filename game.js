@@ -22,18 +22,26 @@ let bord_y_min;
 let bord_x_max;
 let bord_y_max;
 
+let txt_score_x;
+let txt_score_y;
 
 if (canvas.width<canvas.height){
 	bord_x_min = 0;
 	bord_y_min = canvas.height/2 - canvas.width/2;
 	bord_x_max = canvas.width;
 	bord_y_max = canvas.height/2 + canvas.width/2;
+	
+	txt_score_x = canvas.width/2;
+	txt_score_y = bord_y_min/2;
 }
 else{
 	bord_x_min = canvas.width/2 - canvas.height/2;
 	bord_y_min = 0;
-	bord_x_max = canvas.width/2 + canvas.height/2;;
+	bord_x_max = canvas.width/2 + canvas.height/2;
 	bord_y_max = canvas.height;
+	
+	txt_score_x = bord_x_min/2;
+	txt_score_y = canvas.height/2;
 }
 
 // Handle Press (Mouse Down or Touch Start)
@@ -181,25 +189,26 @@ function draw() {
 	ctx.clearRect(0, bord_y_max, canvas.width, canvas.height);
 	//Draw lines
 	for (let ix = 0; ix < nb_elem+1; ix++) {
-		ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+		ctx.strokeStyle = 'rgba(255,255,255,0.1)';
 		ctx.beginPath(); // Start a new path
 		ctx.moveTo(bord_x_min+ix*unite, bord_y_min); // Move the pen to (30, 50)
 		ctx.lineTo(bord_x_min+ix*unite, bord_y_max);
 		ctx.stroke(); // Render the path
 	}
 	for (let iy = 0; iy < nb_elem+1; iy++) {
-		ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+		ctx.strokeStyle = 'rgba(255,255,255,0.1)';
 		ctx.beginPath(); // Start a new path
 		ctx.moveTo(bord_x_min, bord_y_min+iy*unite); // Move the pen to (30, 50)
 		ctx.lineTo(bord_x_max, bord_y_min+iy*unite);
 		ctx.stroke(); // Render the path
 	}
     // Draw Score
+	ctx.textAlign = "center";
     ctx.fillStyle = "white";
-    ctx.font = "40px Arial";
-    ctx.fillText(score, 10, 30);
-	//ctx.font = "40px Arial";
-    //ctx.fillText("High Score: " + highScore, 10, 60);
+    ctx.font = unite+"px Arial";
+    ctx.fillText("score "+score, txt_score_x, txt_score_y);
+	ctx.font = unite+"40px Arial";
+    ctx.fillText("High Score: " + highScore, txt_score_x, txt_score_y-1.5*unite);
 	
 	
 	

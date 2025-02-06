@@ -25,6 +25,11 @@ let bord_y_max;
 let txt_score_x;
 let txt_score_y;
 
+// Create gradient
+	const grad=ctx.createRadialGradient(centerX,centerY,15,centerX,centerY,150);
+	grad.addColorStop(0,"lightblue");
+	grad.addColorStop(1,"darkblue");
+
 if (canvas.width<canvas.height){
 	bord_x_min = 0;
 	bord_y_min = canvas.height/2 - canvas.width/2;
@@ -170,8 +175,13 @@ function draw() {
 
 	
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
+	// Fill rectangle with gradient
+	ctx.fillStyle = grad;
+	ctx.fillRect(0, 0, canvas.width, canvas.height);
 	
-
+	//ctx.shadowColor = "rgba(255, 255, 255, 0.5)";
+	//ctx.shadowOffsetX = 1;
+	//ctx.shadowOffsetY = 1;
     // Draw Squares
     ctx.fillStyle = "white";
     squares.forEach((square) => {
@@ -179,6 +189,9 @@ function draw() {
     });
 
     // Draw Objects
+	//ctx.shadowColor = "rgba(255, 0, 0, 0.5)";
+	//ctx.shadowOffsetX = 1;
+	//ctx.shadowOffsetY = 1;
     ctx.fillStyle = "red";
     objects.forEach((obj) => {
         ctx.fillRect(obj.x, obj.y, obj.size, obj.size);

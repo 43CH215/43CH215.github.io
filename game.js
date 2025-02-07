@@ -24,7 +24,8 @@ let bord_y_max;
 
 let txt_score_x;
 let txt_score_y;
-
+let millis = Date.now();
+let fps = 60;
 // Create gradient
 	const grad=ctx.createRadialGradient(centerX,centerY,15,centerX,centerY,150);
 	grad.addColorStop(0,"lightblue");
@@ -308,10 +309,12 @@ function restartGame(event) {
 
 // Game Loop
 function gameLoop() {
-    update();
+    millis=Date.now();
+	update();
     draw();
-    if (!gameOver) {
-        requestAnimationFrame(gameLoop);
+	if (!gameOver) {
+		setTimeout(() => requestAnimationFrame(gameLoop), 1000/fps-Date.now()+millis)
+        //requestAnimationFrame(gameLoop);
     }
 }
 
@@ -319,4 +322,4 @@ function gameLoop() {
 setInterval(spawnObject, 1000);
 
 // Start the Game
-setInterval(gameLoop,1000/60);
+gameLoop();

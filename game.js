@@ -170,26 +170,26 @@ function spawnPU(){
     };
 	switch (side) {
         case 0: // Top
-            obj.x = bord_x_min+Math.floor(nb_elem/2-deplacement+2+Math.random() * (deplacement+2))*unite;
+            obj.x = bord_x_min+Math.floor(nb_elem/2-deplacement+Math.random() * (deplacement+2))*unite;
             obj.y = bord_y_min-size;
             obj.vx = 0;
             obj.vy = speed;
             break;
         case 1: // Bottom
-            obj.x = bord_x_min+Math.floor(nb_elem/2-deplacement+2+Math.random() * (deplacement+2))*unite;
+            obj.x = bord_x_min+Math.floor(nb_elem/2-deplacement+Math.random() * (deplacement+2))*unite;
             obj.y = bord_y_max + size;
             obj.vx = 0;
             obj.vy = -speed;
             break;
         case 2: // Left
             obj.x = bord_x_min-size;
-            obj.y = bord_y_min+Math.floor(nb_elem/2-deplacement+2+Math.random() * (deplacement+2))*unite;
+            obj.y = bord_y_min+Math.floor(nb_elem/2-deplacement+Math.random() * (deplacement+2))*unite;
             obj.vx = speed;
             obj.vy = 0;
             break;
         case 3: // Right
             obj.x = bord_x_max + size;
-            obj.y =bord_y_min+Math.floor(nb_elem/2-deplacement+2+Math.random() * (deplacement+2))*unite;
+            obj.y =bord_y_min+Math.floor(nb_elem/2-deplacement+Math.random() * (deplacement+2))*unite;
             obj.vx = -speed;
             obj.vy = 0;
             break;

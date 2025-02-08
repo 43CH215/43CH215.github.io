@@ -249,7 +249,6 @@ function update() {
 							{ x: centerX - offset - newSize/2, y: centerY + offset - newSize/2, size: newSize },
 							{ x: centerX + offset - newSize/2, y: centerY + offset - newSize/2, size: newSize }
 					];
-					isDivided = true;
 					grad4=ctx.createRadialGradient(centerX - offset,centerY - offset,squareSize/4,centerX - offset,centerY - offset,squareSize);
 					grad4.addColorStop(0,"lightblue");
 					grad4.addColorStop(1,"darkblue");
@@ -446,7 +445,7 @@ if (isDivided) {
 							{ x: centerX - offset - newSize/2, y: centerY + offset - newSize/2, size: newSize },
 							{ x: centerX + offset - newSize/2, y: centerY + offset - newSize/2, size: newSize }
 					];
-					isDivided = true;
+					offset = (deplacement+0.5)*Math.min(canvas.width,canvas.height) / nb_elem;
 					grad4=ctx.createRadialGradient(centerX - offset,centerY - offset,squareSize/4,centerX - offset,centerY - offset,squareSize);
 					grad4.addColorStop(0,"lightblue");
 					grad4.addColorStop(1,"darkblue");

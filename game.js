@@ -15,7 +15,8 @@ let objects = [];
 let gameOver = false;
 let score = 0;
 let highScore = localStorage.getItem("highScore") || 0;
-let offset = 2.5*Math.min(canvas.width,canvas.height) / nb_elem;
+let deplacement = 1;
+let offset = (deplacement+0.5)*Math.min(canvas.width,canvas.height) / nb_elem;
 
 let bord_x_min;
 let bord_y_min;
@@ -24,10 +25,21 @@ let bord_y_max;
 
 let txt_score_x;
 let txt_score_y;
-let millis = Date.now();
-let fps = 60;
+
+
+const FPS = 30; // Target FPS
+const FRAME_DURATION = 1000 / FPS; // Time per frame in milliseconds
+
+let lastFrameTime = 0;
+
+let grad1;
+let grad2;
+let grad3;
+let grad4;
+
 // Create gradient
-	const grad=ctx.createRadialGradient(centerX,centerY,15,centerX,centerY,150);
+	const grad=ctx.createRadialGradient(centerX,centerY,squareSize/2,centerX,centerY,2*squareSize);
+	
 	grad.addColorStop(0,"lightblue");
 	grad.addColorStop(1,"darkblue");
 
@@ -75,7 +87,19 @@ function splitSquares() {
             { x: centerX + offset - newSize/2, y: centerY + offset - newSize/2, size: newSize }
         ];
         isDivided = true;
-    }
+		grad4=ctx.createRadialGradient(centerX - offset,centerY - offset,squareSize/4,centerX - offset,centerY - offset,squareSize);
+		grad4.addColorStop(0,"lightblue");
+		grad4.addColorStop(1,"darkblue");
+		grad3=ctx.createRadialGradient(centerX + offset,centerY - offset,squareSize/4,centerX + offset,centerY - offset,squareSize);
+		grad3.addColorStop(0,"lightblue");
+		grad3.addColorStop(1,"darkblue");
+		grad1=ctx.createRadialGradient(centerX - offset,centerY + offset,squareSize/4,centerX - offset,centerY + offset,squareSize);
+		grad1.addColorStop(0,"lightblue");
+		grad1.addColorStop(1,"darkblue");
+		grad2=ctx.createRadialGradient(centerX + offset,centerY + offset,squareSize/4,centerX + offset,centerY + offset,squareSize);
+		grad2.addColorStop(0,"lightblue");
+		grad2.addColorStop(1,"darkblue");
+   }
 }
 
 // Function to merge the squares back to one
@@ -92,7 +116,7 @@ function spawnObject() {
 
     let side = Math.floor(Math.random() * 4);
     let size = unite;
-    let speed = 3+1*score/1000;
+    let speed = 6+1*score/1000;
 
     let obj = {
         size: size,
@@ -101,26 +125,26 @@ function spawnObject() {
 
     switch (side) {
         case 0: // Top
-            obj.x = bord_x_min+Math.floor(Math.random() * (nb_elem-1))*unite;
+            obj.x = bord_x_min+Math.floor(nb_elem/2-3+Math.random() * (6))*unite;
             obj.y = bord_y_min-size;
             obj.vx = 0;
             obj.vy = speed;
             break;
         case 1: // Bottom
-            obj.x = bord_x_min+Math.floor(Math.random() * (nb_elem-1))*unite;
+            obj.x = bord_x_min+Math.floor(nb_elem/2-3+Math.random() * (6))*unite;
             obj.y = bord_y_max + size;
             obj.vx = 0;
             obj.vy = -speed;
             break;
         case 2: // Left
             obj.x = bord_x_min-size;
-            obj.y = bord_y_min+Math.floor(Math.random() * (nb_elem-1))*unite;
+            obj.y = bord_y_min+Math.floor(nb_elem/2-3+Math.random() * (6))*unite;
             obj.vx = speed;
             obj.vy = 0;
             break;
         case 3: // Right
             obj.x = bord_x_max + size;
-            obj.y = bord_y_min+Math.floor(Math.random() * (nb_elem-1))*unite;
+            obj.y = bord_y_min+Math.floor(nb_elem/2-3+Math.random() * (6))*unite;
             obj.vx = -speed;
             obj.vy = 0;
             break;
@@ -177,12 +201,29 @@ function draw() {
 	
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 	// Fill rectangle with gradient
+	if (!isDivided) {
 	ctx.fillStyle = grad;
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
+	ctx.fillStyle = "rgba(255, 255, 255, 0.1)";
+	ctx.fillRect(centerX - offset - squareSize/4, centerY - offset - squareSize/4, squareSize/2, squareSize/2);	
+	ctx.fillRect(centerX + offset - squareSize/4, centerY - offset - squareSize/4, squareSize/2, squareSize/2);
+	ctx.fillRect(centerX - offset - squareSize/4, centerY + offset - squareSize/4, squareSize/2, squareSize/2);
+	ctx.fillRect(centerX + offset - squareSize/4, centerY + offset - squareSize/4, squareSize/2, squareSize/2);
 	
-	//ctx.shadowColor = "rgba(255, 255, 255, 0.5)";
-	//ctx.shadowOffsetX = 1;
-	//ctx.shadowOffsetY = 1;
+	}
+	else{
+		ctx.fillStyle = grad1;
+		ctx.fillRect(0, canvas.height/2, canvas.width/2, canvas.height/2);
+		ctx.fillStyle = grad2;
+		ctx.fillRect(canvas.width/2, canvas.height/2, canvas.width/2, canvas.height/2);
+		ctx.fillStyle = grad3;
+		ctx.fillRect(canvas.width/2, 0, canvas.width/2, canvas.height/2);
+		ctx.fillStyle = grad4;
+		ctx.fillRect(0, 0, canvas.width/2, canvas.height/2);
+		ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
+		ctx.fillRect(centerX-squareSize/2, centerY-squareSize/2, squareSize, squareSize);	
+	}
+	
     // Draw Squares
     ctx.fillStyle = "white";
     squares.forEach((square) => {
@@ -308,15 +349,19 @@ function restartGame(event) {
 }
 
 // Game Loop
-function gameLoop() {
-    millis=Date.now();
-	update();
-    draw();
-	if (!gameOver) {
-		setTimeout(() => requestAnimationFrame(gameLoop), 1000/fps-Date.now()+millis)
-        //requestAnimationFrame(gameLoop);
+function gameLoop(timestamp) {
+    requestAnimationFrame(gameLoop); // Schedule the next frame
+
+    const elapsed = timestamp - lastFrameTime;
+
+    if (elapsed > FRAME_DURATION) {
+        lastFrameTime = timestamp - (elapsed % FRAME_DURATION); // Adjust to maintain stability
+
+        update(); // Update game logic
+        draw();   // Render frame
     }
 }
+
 
 // Spawn objects every second
 setInterval(spawnObject, 1000);

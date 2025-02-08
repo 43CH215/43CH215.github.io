@@ -12,6 +12,7 @@ let originalSquare = { x: centerX-squareSize/2, y: centerY-squareSize/2, size: s
 let squares = [originalSquare];
 let isDivided = false;
 let objects = [];
+let powerups = [];
 let gameOver = false;
 let score = 0;
 let highScore = localStorage.getItem("highScore") || 0;
@@ -125,31 +126,75 @@ function spawnObject() {
 
     switch (side) {
         case 0: // Top
-            obj.x = bord_x_min+Math.floor(nb_elem/2-3+Math.random() * (6))*unite;
+            obj.x = bord_x_min+Math.floor(nb_elem/2-deplacement+Math.random() * (2*deplacement+2))*unite;
             obj.y = bord_y_min-size;
             obj.vx = 0;
             obj.vy = speed;
             break;
         case 1: // Bottom
-            obj.x = bord_x_min+Math.floor(nb_elem/2-3+Math.random() * (6))*unite;
+            obj.x = bord_x_min+Math.floor(nb_elem/2-deplacement+Math.random() * (2*deplacement+2))*unite;
             obj.y = bord_y_max + size;
             obj.vx = 0;
             obj.vy = -speed;
             break;
         case 2: // Left
             obj.x = bord_x_min-size;
-            obj.y = bord_y_min+Math.floor(nb_elem/2-3+Math.random() * (6))*unite;
+            obj.y = bord_y_min+Math.floor(nb_elem/2-deplacement+Math.random() * (2*deplacement+2))*unite;
             obj.vx = speed;
             obj.vy = 0;
             break;
         case 3: // Right
             obj.x = bord_x_max + size;
-            obj.y = bord_y_min+Math.floor(nb_elem/2-3+Math.random() * (6))*unite;
+            obj.y = bord_y_min+Math.floor(nb_elem/2-deplacement+Math.random() * (2*deplacement+2))*unite;
             obj.vx = -speed;
             obj.vy = 0;
             break;
     }
     objects.push(obj);
+}
+
+function spawnPU(){
+	if (gameOver) return;
+
+    let side = Math.floor(Math.random() * 4);
+	let type = Math.floor(Math.random() * 1);
+    let size = unite;
+    let speed = 6+1*score/1000;
+	let validated = false;
+
+    let obj = {
+        size: size,
+        speed: speed,
+		type: type,
+		validated: validated
+    };
+	switch (side) {
+        case 0: // Top
+            obj.x = bord_x_min+Math.floor(nb_elem/2-deplacement+1+Math.random() * (deplacement+2))*unite;
+            obj.y = bord_y_min-size;
+            obj.vx = 0;
+            obj.vy = speed;
+            break;
+        case 1: // Bottom
+            obj.x = bord_x_min+Math.floor(nb_elem/2-deplacement+1+Math.random() * (deplacement+2))*unite;
+            obj.y = bord_y_max + size;
+            obj.vx = 0;
+            obj.vy = -speed;
+            break;
+        case 2: // Left
+            obj.x = bord_x_min-size;
+            obj.y = bord_y_min+Math.floor(nb_elem/2-deplacement+1+Math.random() * (deplacement+2))*unite;
+            obj.vx = speed;
+            obj.vy = 0;
+            break;
+        case 3: // Right
+            obj.x = bord_x_max + size;
+            obj.y =bord_y_min+Math.floor(nb_elem/2-deplacement+1+Math.random() * (deplacement+2))*unite;
+            obj.vx = -speed;
+            obj.vy = 0;
+            break;
+    }
+    powerups.push(obj);
 }
 
 // Collision Detection
@@ -171,6 +216,11 @@ function update() {
         obj.x += obj.vx;
         obj.y += obj.vy;
     });
+	// Move PU
+    powerups.forEach((obj) => {
+        obj.x += obj.vx;
+        obj.y += obj.vy;
+    });
 
     // Check for collisions
     objects.forEach((obj) => {
@@ -180,9 +230,32 @@ function update() {
             }
         });
     });
+	powerups.forEach((obj) => {
+        squares.forEach((square) => {
+            if (checkCollision(square, obj) && obj.validated==false) {
+                if (deplacement==1){
+					deplacement =2;
+				}
+				else{
+					deplacement=1;
+				}
+				obj.validated=true;
+				offset = (deplacement+0.5)*Math.min(canvas.width,canvas.height) / nb_elem;
+            }
+        });
+    });
 
     // Remove objects that move off-screen
     objects = objects.filter(
+        (obj) =>
+            obj.x > -obj.size &&
+            obj.x < canvas.width + obj.size &&
+            obj.y > -obj.size &&
+            obj.y < canvas.height + obj.size
+    );
+	
+	// Remove pu that move off-screen
+    powerups = powerups.filter(
         (obj) =>
             obj.x > -obj.size &&
             obj.x < canvas.width + obj.size &&
@@ -231,12 +304,16 @@ function draw() {
     });
 
     // Draw Objects
-	//ctx.shadowColor = "rgba(255, 0, 0, 0.5)";
-	//ctx.shadowOffsetX = 1;
-	//ctx.shadowOffsetY = 1;
     ctx.fillStyle = "red";
     objects.forEach((obj) => {
         ctx.fillRect(obj.x, obj.y, obj.size, obj.size);
+    });
+	// Draw PowerUps
+    ctx.fillStyle = "orange";
+    powerups.forEach((obj) => {
+        if(obj.validated==false){
+			ctx.fillRect(obj.x, obj.y, obj.size, obj.size);
+		}
     });
 	ctx.clearRect(0, 0, bord_x_min, canvas.height);
 	ctx.clearRect(bord_x_max, 0, canvas.width, canvas.height);
@@ -364,7 +441,7 @@ function gameLoop(timestamp) {
 
 
 // Spawn objects every second
-setInterval(spawnObject, 1000);
-
+setInterval(spawnObject, 1000000);
+setInterval(spawnPU, 2000);
 // Start the Game
 gameLoop();

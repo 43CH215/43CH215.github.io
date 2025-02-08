@@ -437,31 +437,12 @@ function restartGame(event) {
         squares = [originalSquare];
         isDivided = false;
 								deplacement =1;
-if (isDivided) {
-					let newSize = squareSize / 2;
-						squares = [
-							{ x: centerX - offset - newSize/2, y: centerY - offset - newSize/2, size: newSize },
-							{ x: centerX + offset - newSize/2, y: centerY - offset - newSize/2, size: newSize },
-							{ x: centerX - offset - newSize/2, y: centerY + offset - newSize/2, size: newSize },
-							{ x: centerX + offset - newSize/2, y: centerY + offset - newSize/2, size: newSize }
-					];
-					offset = (deplacement+0.5)*Math.min(canvas.width,canvas.height) / nb_elem;
-					grad4=ctx.createRadialGradient(centerX - offset,centerY - offset,squareSize/4,centerX - offset,centerY - offset,squareSize);
-					grad4.addColorStop(0,"lightblue");
-					grad4.addColorStop(1,"darkblue");
-					grad3=ctx.createRadialGradient(centerX + offset,centerY - offset,squareSize/4,centerX + offset,centerY - offset,squareSize);
-					grad3.addColorStop(0,"lightblue");
-					grad3.addColorStop(1,"darkblue");
-					grad1=ctx.createRadialGradient(centerX - offset,centerY + offset,squareSize/4,centerX - offset,centerY + offset,squareSize);
-					grad1.addColorStop(0,"lightblue");
-					grad1.addColorStop(1,"darkblue");
-					grad2=ctx.createRadialGradient(centerX + offset,centerY + offset,squareSize/4,centerX + offset,centerY + offset,squareSize);
-					grad2.addColorStop(0,"lightblue");
-					grad2.addColorStop(1,"darkblue");
-   }
+
+					   offset = (deplacement+0.5)*Math.min(canvas.width,canvas.height) / nb_elem;
+					
         // Remove event listener to avoid multiple clicks
         canvas.removeEventListener("click", restartGame);
-		canvas.removeEventListener("touchstart", restartGame);
+		      canvas.removeEventListener("touchstart", restartGame);
         // Restart game loop
         gameLoop();
     }

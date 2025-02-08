@@ -314,7 +314,7 @@ function draw() {
 		ctx.fillRect(canvas.width/2, 0, canvas.width/2, canvas.height/2);
 		ctx.fillStyle = grad4;
 		ctx.fillRect(0, 0, canvas.width/2, canvas.height/2);
-		ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
+		ctx.fillStyle = "rgba(255, 255, 255, 0.1)";
 		ctx.fillRect(centerX-squareSize/2, centerY-squareSize/2, squareSize, squareSize);	
 	}
 	

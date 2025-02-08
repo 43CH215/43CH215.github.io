@@ -126,26 +126,26 @@ function spawnObject() {
 
     switch (side) {
         case 0: // Top
-            obj.x = bord_x_min+Math.floor(nb_elem/2-deplacement+Math.random() * (2*deplacement+2))*unite;
+            obj.x = bord_x_min+Math.floor(nb_elem/2-deplacement-2+Math.random() * (2*deplacement+4))*unite;
             obj.y = bord_y_min-size;
             obj.vx = 0;
             obj.vy = speed;
             break;
         case 1: // Bottom
-            obj.x = bord_x_min+Math.floor(nb_elem/2-deplacement+Math.random() * (2*deplacement+2))*unite;
+            obj.x = bord_x_min+Math.floor(nb_elem/2-deplacement-2+Math.random() * (2*deplacement+4))*unite;
             obj.y = bord_y_max + size;
             obj.vx = 0;
             obj.vy = -speed;
             break;
         case 2: // Left
             obj.x = bord_x_min-size;
-            obj.y = bord_y_min+Math.floor(nb_elem/2-deplacement+Math.random() * (2*deplacement+2))*unite;
+            obj.y = bord_y_min+Math.floor(nb_elem/2-deplacement-2+Math.random() * (2*deplacement+4))*unite;
             obj.vx = speed;
             obj.vy = 0;
             break;
         case 3: // Right
             obj.x = bord_x_max + size;
-            obj.y = bord_y_min+Math.floor(nb_elem/2-deplacement+Math.random() * (2*deplacement+2))*unite;
+            obj.y = bord_y_min+Math.floor(nb_elem/2-deplacement-2+Math.random() * (2*deplacement+4))*unite;
             obj.vx = -speed;
             obj.vy = 0;
             break;
@@ -170,26 +170,26 @@ function spawnPU(){
     };
 	switch (side) {
         case 0: // Top
-            obj.x = bord_x_min+Math.floor(nb_elem/2-deplacement+Math.random() * (deplacement+2))*unite;
+            obj.x = bord_x_min+Math.floor(nb_elem/2-deplacement-1+Math.random() * (2*deplacement+2))*unite;
             obj.y = bord_y_min-size;
             obj.vx = 0;
             obj.vy = speed;
             break;
         case 1: // Bottom
-            obj.x = bord_x_min+Math.floor(nb_elem/2-deplacement+Math.random() * (deplacement+2))*unite;
+            obj.x = bord_x_min+Math.floor(nb_elem/2-deplacement-1+Math.random() * (2*deplacement+2))*unite;
             obj.y = bord_y_max + size;
             obj.vx = 0;
             obj.vy = -speed;
             break;
         case 2: // Left
             obj.x = bord_x_min-size;
-            obj.y = bord_y_min+Math.floor(nb_elem/2-deplacement+Math.random() * (deplacement+2))*unite;
+            obj.y = bord_y_min+Math.floor(nb_elem/2-deplacement-1+Math.random() * (2*deplacement+2))*unite;
             obj.vx = speed;
             obj.vy = 0;
             break;
         case 3: // Right
             obj.x = bord_x_max + size;
-            obj.y =bord_y_min+Math.floor(nb_elem/2-deplacement+Math.random() * (deplacement+2))*unite;
+            obj.y =bord_y_min+Math.floor(nb_elem/2-deplacement-1+Math.random() * (2*deplacement+2))*unite;
             obj.vx = -speed;
             obj.vy = 0;
             break;
@@ -239,8 +239,30 @@ function update() {
 				else{
 					deplacement=1;
 				}
-				obj.validated=true;
 				offset = (deplacement+0.5)*Math.min(canvas.width,canvas.height) / nb_elem;
+				obj.validated=true;
+				if (isDivided) {
+					let newSize = squareSize / 2;
+						squares = [
+							{ x: centerX - offset - newSize/2, y: centerY - offset - newSize/2, size: newSize },
+							{ x: centerX + offset - newSize/2, y: centerY - offset - newSize/2, size: newSize },
+							{ x: centerX - offset - newSize/2, y: centerY + offset - newSize/2, size: newSize },
+							{ x: centerX + offset - newSize/2, y: centerY + offset - newSize/2, size: newSize }
+					];
+					isDivided = true;
+					grad4=ctx.createRadialGradient(centerX - offset,centerY - offset,squareSize/4,centerX - offset,centerY - offset,squareSize);
+					grad4.addColorStop(0,"lightblue");
+					grad4.addColorStop(1,"darkblue");
+					grad3=ctx.createRadialGradient(centerX + offset,centerY - offset,squareSize/4,centerX + offset,centerY - offset,squareSize);
+					grad3.addColorStop(0,"lightblue");
+					grad3.addColorStop(1,"darkblue");
+					grad1=ctx.createRadialGradient(centerX - offset,centerY + offset,squareSize/4,centerX - offset,centerY + offset,squareSize);
+					grad1.addColorStop(0,"lightblue");
+					grad1.addColorStop(1,"darkblue");
+					grad2=ctx.createRadialGradient(centerX + offset,centerY + offset,squareSize/4,centerX + offset,centerY + offset,squareSize);
+					grad2.addColorStop(0,"lightblue");
+					grad2.addColorStop(1,"darkblue");
+   }
             }
         });
     });
@@ -270,7 +292,6 @@ function update() {
 // Draw the Game
 function draw() {
     
-
 	
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 	// Fill rectangle with gradient
@@ -285,6 +306,7 @@ function draw() {
 	
 	}
 	else{
+		
 		ctx.fillStyle = grad1;
 		ctx.fillRect(0, canvas.height/2, canvas.width/2, canvas.height/2);
 		ctx.fillStyle = grad2;
@@ -300,7 +322,7 @@ function draw() {
     // Draw Squares
     ctx.fillStyle = "white";
     squares.forEach((square) => {
-        ctx.fillRect(square.x, square.y, square.size, square.size);
+		ctx.fillRect(square.x, square.y, square.size, square.size);
     });
 
     // Draw Objects
@@ -412,6 +434,7 @@ function restartGame(event) {
         gameOver = false;
         score = 0;
         objects = [];
+		powerups = [];
         squares = [originalSquare];
         isDivided = false;
 

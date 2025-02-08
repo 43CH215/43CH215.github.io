@@ -159,7 +159,7 @@ function spawnPU(){
     let side = Math.floor(Math.random() * 4);
 	let type = Math.floor(Math.random() * 1);
     let size = unite;
-    let speed = 6+1*score/1000;
+    let speed = 4;
 	let validated = false;
 
     let obj = {
@@ -170,26 +170,26 @@ function spawnPU(){
     };
 	switch (side) {
         case 0: // Top
-            obj.x = bord_x_min+Math.floor(nb_elem/2-deplacement+1+Math.random() * (deplacement+2))*unite;
+            obj.x = bord_x_min+Math.floor(nb_elem/2-deplacement+2+Math.random() * (deplacement+2))*unite;
             obj.y = bord_y_min-size;
             obj.vx = 0;
             obj.vy = speed;
             break;
         case 1: // Bottom
-            obj.x = bord_x_min+Math.floor(nb_elem/2-deplacement+1+Math.random() * (deplacement+2))*unite;
+            obj.x = bord_x_min+Math.floor(nb_elem/2-deplacement+2+Math.random() * (deplacement+2))*unite;
             obj.y = bord_y_max + size;
             obj.vx = 0;
             obj.vy = -speed;
             break;
         case 2: // Left
             obj.x = bord_x_min-size;
-            obj.y = bord_y_min+Math.floor(nb_elem/2-deplacement+1+Math.random() * (deplacement+2))*unite;
+            obj.y = bord_y_min+Math.floor(nb_elem/2-deplacement+2+Math.random() * (deplacement+2))*unite;
             obj.vx = speed;
             obj.vy = 0;
             break;
         case 3: // Right
             obj.x = bord_x_max + size;
-            obj.y =bord_y_min+Math.floor(nb_elem/2-deplacement+1+Math.random() * (deplacement+2))*unite;
+            obj.y =bord_y_min+Math.floor(nb_elem/2-deplacement+2+Math.random() * (deplacement+2))*unite;
             obj.vx = -speed;
             obj.vy = 0;
             break;
@@ -441,7 +441,7 @@ function gameLoop(timestamp) {
 
 
 // Spawn objects every second
-setInterval(spawnObject, 1000000);
-setInterval(spawnPU, 2000);
+setInterval(spawnObject, 1000);
+setInterval(spawnPU, 10000);
 // Start the Game
 gameLoop();

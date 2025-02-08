@@ -437,6 +437,7 @@ function restartGame(event) {
 		powerups = [];
         squares = [originalSquare];
         isDivided = false;
+								deplacement =1;
 
         // Remove event listener to avoid multiple clicks
         canvas.removeEventListener("click", restartGame);

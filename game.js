@@ -358,10 +358,10 @@ function draw() {
     // Draw Score
 	ctx.textAlign = "center";
     ctx.fillStyle = "white";
-    ctx.font = unite+"px Arial";
-    ctx.fillText("score "+score, txt_score_x, txt_score_y);
-	ctx.font = unite+"40px Arial";
-    ctx.fillText("High Score: " + highScore, txt_score_x, txt_score_y-1.5*unite);
+    ctx.font = unite + "px Arial";
+    ctx.fillText("score " + score, txt_score_x, txt_score_y);
+    ctx.font = "40px Arial";
+    ctx.fillText("High Score: " + highScore, txt_score_x, txt_score_y - 1.5 * unite);
 	
 	
 	

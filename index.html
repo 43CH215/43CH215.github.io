@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DartMaster V11 Training</title>
+    <title>DartMaster V12 Hybrid</title>
     <style>
         :root {
             --bg: #0f172a;
@@ -33,6 +33,16 @@
         .btn-green { background: var(--primary); color: #000; }
         .btn-grey { background: var(--panel); }
         .btn-red { background: var(--danger); }
+        .btn-outline { background: transparent; border: 1px solid var(--dim); color: var(--dim); }
+
+        /* --- COOKIE BANNER --- */
+        .cookie-banner {
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            background: var(--panel); border-top: 1px solid var(--accent);
+            padding: 15px; box-sizing: border-box; z-index: 1000;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .cookie-text { font-size: 0.9rem; margin-right: 10px; }
 
         /* --- SETUP --- */
         .container { max-width: 450px; margin: auto; padding: 20px; width: 100%; box-sizing: border-box; text-align: center; }
@@ -40,14 +50,19 @@
         .mode-btn { background: var(--panel); padding: 15px; border-radius: 8px; cursor: pointer; color: var(--dim); border: 2px solid transparent; transition: 0.2s; }
         .mode-btn.active { border-color: var(--primary); color: #fff; background: #14532d; }
         
-        /* Options Switch */
-        .options-row { display: flex; justify-content: space-between; align-items: center; background: var(--panel); padding: 10px 15px; border-radius: 8px; margin-bottom: 20px; }
-        .switch { position: relative; display: inline-block; width: 50px; height: 26px; }
+        .options-section { background: var(--panel); padding: 10px; border-radius: 8px; margin-bottom: 15px; text-align: left; }
+        .opt-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+        .switch { position: relative; display: inline-block; width: 40px; height: 20px; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #333; transition: .4s; border-radius: 34px; }
-        .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 2px; bottom: 2px; background-color: white; transition: .4s; border-radius: 50%; }
         input:checked + .slider { background-color: var(--primary); }
-        input:checked + .slider:before { transform: translateX(24px); }
+        input:checked + .slider:before { transform: translateX(20px); }
+
+        /* INPUT METHOD SELECTOR */
+        .input-selector { display: flex; gap: 10px; margin-bottom: 20px; }
+        .input-sel-btn { flex: 1; padding: 10px; background: var(--panel); border: 1px solid #333; border-radius: 6px; cursor: pointer; color: var(--dim); }
+        .input-sel-btn.active { background: var(--accent); color: #000; border-color: var(--accent); font-weight: bold; }
 
         .input-row { display: flex; gap: 5px; margin-bottom: 8px; }
         input[type="text"] { flex: 1; padding: 10px; border-radius: 6px; border: 1px solid var(--dim); background: var(--panel); color: #fff; }
@@ -89,20 +104,40 @@
         .board-area { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #000; }
         #dartboard-container { width: 95vmin; height: 95vmin; max-width: 650px; max-height: 650px; }
         
-        /* OVERLAYS */
+        /* MISS BUTTON OVERLAY */
+        .miss-overlay-btn {
+            position: absolute; bottom: 80px; right: 20px;
+            background: #333; color: #aaa; border: 1px solid #555;
+            width: 60px; height: 60px; border-radius: 50%;
+            font-weight: bold; cursor: pointer; z-index: 5;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .miss-overlay-btn:active { background: #555; color: #fff; }
+
+        /* KEYPAD UI (New) */
+        #keypad-container { width: 100%; height: 100%; display: flex; flex-direction: column; padding: 10px; box-sizing: border-box; max-width: 500px; }
+        .mod-row { display: flex; gap: 10px; margin-bottom: 10px; height: 50px; }
+        .mod-btn { flex: 1; border-radius: 8px; font-weight: bold; font-size: 1.1rem; background: var(--panel); color: var(--dim); border: 1px solid #444; }
+        .mod-btn.active-double { background: var(--badge-dbl); color: #000; border: none; }
+        .mod-btn.active-triple { background: var(--badge-trip); color: #fff; border: none; }
+        
+        .keys-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; flex: 1; }
+        .key-btn { background: var(--panel); border: 1px solid #333; border-radius: 6px; font-size: 1.2rem; font-weight: bold; color: #fff; }
+        .key-btn:active { background: var(--accent); color: #000; }
+        .key-bull { color: var(--danger); }
+        .key-miss { color: var(--dim); font-size: 0.9rem; }
+
+        /* NOTIFICATIONS & ADVICE */
         .advice-box { 
             position: absolute; top: 20px; z-index: 20;
             background: rgba(15, 23, 42, 0.95); border: 1px solid var(--primary);
             color: #fff; padding: 10px 25px; border-radius: 30px; 
             font-weight: bold; font-size: 1.3rem; pointer-events: none; display: none;
-            box-shadow: 0 0 15px rgba(74, 222, 128, 0.3);
         }
-        
         .notification-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             display: flex; align-items: center; justify-content: center;
-            background: rgba(0,0,0,0.6); z-index: 50;
-            pointer-events: none;
+            background: rgba(0,0,0,0.6); z-index: 50; pointer-events: none;
         }
         .notify-text {
             font-size: 5rem; font-weight: 900; color: var(--danger);
@@ -111,16 +146,16 @@
             background: rgba(0,0,0,0.8);
         }
 
-        .controls { position: absolute; bottom: 20px; pointer-events: none; }
+        .controls { position: absolute; bottom: 20px; width: 100%; display: flex; justify-content: center; pointer-events: none; }
         .controls button { pointer-events: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.5); width: auto; padding: 10px 30px; }
 
-        /* SVG & ANIMATION */
+        /* SVG */
         .segment { stroke: #555; stroke-width: 1px; cursor: pointer; transition: none; }
         .flashing { fill: #ffffff !important; }
         .highlighted { stroke: #fff; stroke-width: 3px; filter: drop-shadow(0 0 10px #fbbf24); animation: pulse 1s infinite alternate; fill-opacity: 0.9 !important; }
         @keyframes pulse { from { stroke-width: 3px; } to { stroke-width: 5px; } }
 
-        /* STATS SCREEN */
+        /* STATS */
         .heatmap-wrapper { width: 300px; height: 300px; margin: 0 auto 20px; }
         .legend { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--dim); margin-top: -10px; width: 300px; margin-left: auto; margin-right: auto;}
         .gradient-bar { height: 6px; width: 100%; background: linear-gradient(to right, #00008b, #ff0000); border-radius: 3px; margin: 5px 0;}
@@ -130,14 +165,26 @@
             .sidebar, .game-layout.layout-cricket .sidebar { flex: none; width: 100%; max-width: 100%; height: 40vh; border-right: none; border-top: 1px solid #333; }
             .board-area { flex: 1; height: 60vh; }
             #dartboard-container { width: 80vmin; height: 80vmin; }
+            .miss-overlay-btn { bottom: 80px; right: 10px; width: 50px; height: 50px; font-size: 0.8rem; }
         }
     </style>
 </head>
 <body>
 
+<div id="cookie-banner" class="cookie-banner hidden">
+    <div class="cookie-text">
+        Autoriser la sauvegarde des noms des joueurs (cookies/local storage) pour la prochaine fois ?
+    </div>
+    <div style="display:flex; gap:10px">
+        <button class="btn btn-outline" style="padding:5px 10px; font-size:0.8rem; margin:0;" onclick="hideCookie(false)">Non</button>
+        <button class="btn btn-green" style="padding:5px 10px; font-size:0.8rem; margin:0;" onclick="hideCookie(true)">Oui, sauvegarder</button>
+    </div>
+</div>
+
 <div id="setup" class="screen">
     <div class="container">
-        <h1 style="color:var(--primary)">🎯 DartMaster V11</h1>
+        <h1 style="color:var(--primary)">🎯 DartMaster V12</h1>
+        
         <div class="mode-grid">
             <div class="mode-btn active" onclick="setMode('301')">301</div>
             <div class="mode-btn" onclick="setMode('501')">501</div>
@@ -145,30 +192,53 @@
             <div class="mode-btn" onclick="setMode('cutthroat')">Cut Throat</div>
         </div>
 
-        <div id="option-double-out" class="options-row">
-            <span>Obligation Double Out</span>
-            <label class="switch">
-                <input type="checkbox" id="chk-double-out" checked>
-                <span class="slider"></span>
-            </label>
+        <div class="options-section">
+            <div id="opt-double-out" class="opt-row">
+                <span>Obligation Double Out</span>
+                <label class="switch"><input type="checkbox" id="chk-double-out" checked><span class="slider"></span></label>
+            </div>
+            
+            <div style="margin-top:10px; margin-bottom:5px; font-size:0.9rem; color:var(--dim);">Mode de Saisie :</div>
+            <div class="input-selector">
+                <div class="input-sel-btn active" id="sel-graphic" onclick="setInputMode('graphic')">Cible Tactile</div>
+                <div class="input-sel-btn" id="sel-buttons" onclick="setInputMode('buttons')">Boutons (Clavier)</div>
+            </div>
         </div>
 
         <div id="players-list"></div>
         <button class="btn btn-grey" onclick="addPlayerField()">+ Ajouter Joueur</button>
         <br><br>
-        <button class="btn btn-green" style="padding:15px; font-size:1.2rem;" onclick="startGame()">JOUER / ENTRAINEMENT</button>
+        <button class="btn btn-green" style="padding:15px; font-size:1.2rem;" onclick="startGame()">LANCER LA PARTIE</button>
     </div>
 </div>
 
 <div id="game" class="screen hidden">
     <div id="game-layout-container" class="game-layout">
         <div class="sidebar" id="scoreboard"></div>
+        
         <div class="board-area">
             <div id="notify-layer" class="notification-overlay hidden">
                 <div id="notify-msg" class="notify-text">BUST !</div>
             </div>
+            
             <div id="advice" class="advice-box"></div>
-            <div id="dartboard-container"></div>
+            
+            <div id="graphic-interface" style="width:100%; height:100%; display:flex; justify-content:center; align-items:center;">
+                <div id="dartboard-container"></div>
+                <button class="miss-overlay-btn" onclick="handleThrow(0,1,'miss')">MISS</button>
+            </div>
+
+            <div id="keypad-interface" class="hidden" style="width:100%; height:100%; justify-content:center; align-items:center;">
+                <div id="keypad-container">
+                    <div class="mod-row">
+                        <button class="mod-btn" id="btn-mod-2" onclick="toggleMod(2)">DOUBLE</button>
+                        <button class="mod-btn" id="btn-mod-3" onclick="toggleMod(3)">TRIPLE</button>
+                    </div>
+                    <div class="keys-grid" id="keys-grid">
+                        </div>
+                </div>
+            </div>
+
             <div class="controls">
                 <button class="btn btn-grey" onclick="undo()">↩ Corriger</button>
             </div>
@@ -199,6 +269,7 @@
 </div>
 
 <script>
+    // --- GLOBAL CONFIG ---
     const TARGETS = [20, 19, 18, 17, 16, 15, 25];
     const ALL_SEGMENTS = [];
     for(let i=1; i<=20; i++) { ALL_SEGMENTS.push('s'+i, 'so'+i, 'si'+i, 'd'+i, 't'+i); }
@@ -206,6 +277,7 @@
 
     let state = {
         mode: '301',
+        inputMode: 'graphic', // 'graphic' or 'buttons'
         doubleOut: true,
         players: [],
         turn: 0,
@@ -215,28 +287,86 @@
         winner: null,
         turnStartScore: 0,
         isPaused: false,
-        isSolo: false
+        isSolo: false,
+        keypadMod: 1 // 1, 2, 3
     };
 
-    function init() { addPlayerField('Joueur 1'); }
+    // --- COOKIES / STORAGE ---
+    function checkCookieConsent() {
+        const consent = localStorage.getItem('dm_consent');
+        if(consent === 'true') {
+            loadPlayers();
+        } else if(consent === null) {
+            document.getElementById('cookie-banner').classList.remove('hidden');
+        }
+    }
+
+    function hideCookie(accept) {
+        document.getElementById('cookie-banner').classList.add('hidden');
+        if(accept) {
+            localStorage.setItem('dm_consent', 'true');
+            saveCurrentPlayers(); // Save current inputs if any
+        } else {
+            localStorage.setItem('dm_consent', 'false');
+        }
+    }
+
+    function saveCurrentPlayers() {
+        if(localStorage.getItem('dm_consent') !== 'true') return;
+        const inputs = document.querySelectorAll('#players-list input');
+        const names = Array.from(inputs).map(i => i.value).filter(v => v.trim() !== "");
+        localStorage.setItem('dm_players', JSON.stringify(names));
+    }
+
+    function loadPlayers() {
+        const raw = localStorage.getItem('dm_players');
+        if(raw) {
+            const names = JSON.parse(raw);
+            const list = document.getElementById('players-list');
+            list.innerHTML = ''; // clear default
+            names.forEach(n => addPlayerField(n));
+        }
+        if(document.getElementById('players-list').children.length === 0) {
+            addPlayerField(); addPlayerField();
+        }
+    }
+
+    // --- INIT & SETUP ---
+    function init() {
+        checkCookieConsent();
+        if(document.getElementById('players-list').children.length === 0) {
+             addPlayerField(); addPlayerField();
+        }
+        genKeypad();
+    }
     
-    function addPlayerField(val='') {
+    function addPlayerField(val) {
+        const list = document.getElementById('players-list');
+        const count = list.children.length + 1;
+        const defaultName = val || `Joueur ${count}`;
+        
         const d = document.createElement('div'); d.className = 'input-row';
-        d.innerHTML = `<input type="text" value="${val}" placeholder="Nom"><button class="btn btn-red" style="width:40px;" onclick="this.parentElement.remove()">x</button>`;
-        document.getElementById('players-list').appendChild(d);
+        d.innerHTML = `<input type="text" value="${defaultName}" placeholder="Nom"><button class="btn btn-red" style="width:40px;" onclick="this.parentElement.remove()">x</button>`;
+        list.appendChild(d);
     }
     
     function setMode(m) { 
         state.mode = m; 
         document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active')); 
         event.target.classList.add('active');
-        // Option visibility
-        const opt = document.getElementById('option-double-out');
-        if(m.includes('01')) opt.classList.remove('hidden');
-        else opt.classList.add('hidden');
+        const opt = document.getElementById('opt-double-out');
+        if(m.includes('01')) opt.classList.remove('hidden'); else opt.classList.add('hidden');
+    }
+
+    function setInputMode(m) {
+        state.inputMode = m;
+        document.querySelectorAll('.input-sel-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('sel-'+m).classList.add('active');
     }
 
     function startGame() {
+        saveCurrentPlayers(); // Save names if allowed
+
         const inputs = document.querySelectorAll('#players-list input');
         let ps = [];
         inputs.forEach(i => {
@@ -256,21 +386,88 @@
         state.globalStats = {}; ALL_SEGMENTS.forEach(id => state.globalStats[id] = 0);
         state.turnStartScore = state.players[0].score;
 
+        // Layout Config
         const layout = document.getElementById('game-layout-container');
         if(state.mode.includes('cricket') || state.mode === 'cutthroat') layout.className = "game-layout layout-cricket";
         else layout.className = "game-layout";
 
-        show('game'); genBoard('dartboard-container', true); updateUI();
+        // Input Interface Config
+        const gr = document.getElementById('graphic-interface');
+        const kp = document.getElementById('keypad-interface');
+        if(state.inputMode === 'graphic') {
+            gr.classList.remove('hidden'); kp.classList.add('hidden');
+            genBoard('dartboard-container', true); 
+        } else {
+            gr.classList.add('hidden'); kp.classList.remove('hidden');
+            kp.style.display = 'flex'; // Restore flex display
+        }
+
+        show('game'); updateUI();
     }
     function replay() { startGame(); }
     function show(id) { document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden')); document.getElementById(id).classList.remove('hidden'); }
+
+    // --- KEYPAD LOGIC ---
+    function genKeypad() {
+        const grid = document.getElementById('keys-grid');
+        grid.innerHTML = '';
+        // 1-20 buttons
+        for(let i=1; i<=20; i++) {
+            grid.innerHTML += `<button class="key-btn" onclick="handleKeypadThrow(${i})">${i}</button>`;
+        }
+        // Special
+        grid.innerHTML += `<button class="key-btn key-miss" onclick="handleThrow(0,1,'miss')">MISS</button>`;
+        grid.innerHTML += `<button class="key-btn key-bull" onclick="handleKeypadThrow(25)">BULL</button>`;
+        // Placeholder filler to make grid nice (5 cols)
+        grid.innerHTML += `<div style="grid-column: span 3"></div>`;
+    }
+
+    function toggleMod(m) {
+        if(state.keypadMod === m) state.keypadMod = 1; // toggle off
+        else state.keypadMod = m;
+        updateKeypadVisuals();
+    }
+
+    function updateKeypadVisuals() {
+        document.getElementById('btn-mod-2').className = `mod-btn ${state.keypadMod===2?'active-double':''}`;
+        document.getElementById('btn-mod-3').className = `mod-btn ${state.keypadMod===3?'active-triple':''}`;
+    }
+
+    function handleKeypadThrow(score) {
+        let mul = state.keypadMod;
+        
+        // Validation logic
+        if(score === 25 && mul === 3) mul = 1; // No triple bull
+        if(score === 25 && mul === 2) { 
+            // Double Bull
+        }
+        
+        // ID generation for stats/heatmap mapping
+        let id = '';
+        if(score === 25) id = (mul === 2) ? 'd25' : 's25';
+        else if (score === 0) id = 'miss';
+        else {
+            if(mul===1) id = 's'+score; // map to single (approx)
+            if(mul===2) id = 'd'+score;
+            if(mul===3) id = 't'+score;
+        }
+
+        handleThrow(score, mul, id);
+        
+        // Reset mod
+        state.keypadMod = 1; 
+        updateKeypadVisuals();
+    }
 
     // --- GAME ENGINE ---
     function handleThrow(score, mul, id) {
         if(state.winner || state.isPaused || state.darts.length >= 3) return;
 
-        const el = document.getElementById(id);
-        if(el) { el.classList.add('flashing'); setTimeout(() => { el.classList.remove('flashing'); }, 150); }
+        // Visual feedback (Graphic mode only)
+        if(state.inputMode === 'graphic' && id !== 'miss') {
+            const el = document.getElementById(id);
+            if(el) { el.classList.add('flashing'); setTimeout(() => { el.classList.remove('flashing'); }, 150); }
+        }
 
         const pIdx = state.turn;
         const pCopy = JSON.parse(JSON.stringify(state.players[pIdx]));
@@ -280,7 +477,8 @@
         });
 
         state.darts.push({ score, mul, id });
-        state.globalStats[id]++;
+        if(id !== 'miss') state.globalStats[id]++;
+        
         const p = state.players[pIdx];
         p.stats.throws++;
         
@@ -304,6 +502,8 @@
         state.darts = [];
         state.turnStartScore = state.players[state.turn].score;
         state.isPaused = false;
+        // Reset keypad mod just in case
+        state.keypadMod = 1; updateKeypadVisuals();
         updateUI();
     }
 
@@ -313,39 +513,30 @@
         state.players[last.pIdx] = last.pState;
         state.turn = last.pIdx;
         state.turnStartScore = last.turnStart;
-        if(state.globalStats[last.globalId] > 0) state.globalStats[last.globalId]--;
+        if(last.globalId !== 'miss' && state.globalStats[last.globalId] > 0) state.globalStats[last.globalId]--;
         if(state.darts.length > 0) state.darts.pop(); else state.darts = [];
         updateUI();
     }
 
-    // --- X01 LOGIC ---
+    // --- LOGIC: X01 ---
     function processX01DartImmediate(p, d) {
         const val = d.score * d.mul;
         const newScore = p.score - val;
-
-        // BUST Logic
         let bust = false;
+        
         if(state.doubleOut) {
-            // Standard Rule: Cannot go below 0, cannot be 1 (need double to finish)
             if(newScore < 0 || newScore === 1) bust = true;
         } else {
-            // Simple Out: Just cannot go below 0. 1 is allowed.
             if(newScore < 0) bust = true;
         }
 
-        if(bust) {
-            triggerBust(p);
-            return;
-        }
+        if(bust) { triggerBust(p); return; }
 
-        // WIN Check
         if(newScore === 0) {
             let win = false;
             if(state.doubleOut) {
-                // Must be double or Bull(D)
                 if(d.mul === 2 || (d.score === 25 && d.mul === 2)) win = true;
             } else {
-                // Any hit is fine
                 win = true;
             }
 
@@ -356,12 +547,9 @@
                 endGame();
                 return;
             } else {
-                triggerBust(p); // 0 reached but invalid finish
-                return;
+                triggerBust(p); return;
             }
         }
-
-        // Valid
         p.stats.points += val;
         p.score = newScore;
     }
@@ -374,10 +562,10 @@
             overlay.classList.add('hidden'); 
             p.score = state.turnStartScore; 
             endTurn(); 
-        }, 1500); // reduced slightly
+        }, 1500);
     }
 
-    // --- CRICKET LOGIC ---
+    // --- LOGIC: CRICKET ---
     function processCricketDart(p, d) {
         if(!TARGETS.includes(d.score)) return false;
         let hits = d.mul;
@@ -386,11 +574,8 @@
                 p.cricket[d.score]++;
                 p.stats.marks++;
             } else {
-                // Closed for me.
-                // In Solo Mode: We just want to close everything. No points logic.
-                if(state.isSolo) {
-                     // Do nothing, just mark
-                } else {
+                if(state.isSolo) { /* Solo just closes */ } 
+                else {
                     const closedAll = state.players.every(pl => pl.cricket[d.score] >= 3);
                     if(!closedAll) {
                         if(state.mode === 'cricket') {
@@ -415,17 +600,14 @@
     function checkWin(p) {
         const closed = TARGETS.every(t => p.cricket[t] >= 3);
         if(!closed) return false;
-        
-        // Solo Training: Just close everything
         if(state.isSolo) return true;
-
-        // Multiplayer logic
         if(state.mode === 'cricket') return state.players.every(opp => p.score >= opp.score);
         return state.players.every(opp => p.score <= opp.score);
     }
 
-    // --- UI ---
+    // --- UI RENDER ---
     function formatBadge(d) {
+        if(d.score === 0) return { txt: 'MISS', cls: 'd-single' };
         if(d.score===25) return { txt: d.mul===2?'DB':'SB', cls: d.mul===2?'d-double':'d-single'};
         let t = d.score;
         let c = 'd-single';
@@ -490,18 +672,15 @@
         document.querySelectorAll('.highlighted').forEach(e => e.classList.remove('highlighted'));
         box.style.display = 'none';
         
-        if(!state.mode.includes('01') || state.winner || state.isPaused) return;
+        // Advice mainly for Graphic mode X01
+        if(!state.mode.includes('01') || state.winner || state.isPaused || state.inputMode !== 'graphic') return;
 
         const p = state.players[state.turn];
         const rem = p.score; 
         const dLeft = 3 - state.darts.length;
 
         if(rem > 0 && dLeft > 0) {
-            // Simplified condition for advice display
-            if(rem > 170 && !state.doubleOut) {
-                 // Simple advice for high score straight out
-                 // box.style.display = 'block'; box.innerText = "Score Max"; 
-            } else if (rem <= 170 || !state.doubleOut) { 
+            if(rem <= 170 || !state.doubleOut) {
                 const path = solveCheckout(rem, dLeft);
                 if(path) {
                     box.style.display = 'block'; 
@@ -515,7 +694,6 @@
         }
     }
 
-    // --- CHECKOUT SOLVER ---
     const OUTS = [];
     for(let i=1;i<=20;i++) { OUTS.push({id:'d'+i,s:i,m:2,name:'D'+i}); OUTS.push({id:'t'+i,s:i,m:3,name:'T'+i}); OUTS.push({id:'s'+i,s:i,m:1,name:'S'+i}); }
     OUTS.push({id:'d25',s:25,m:2,name:'DB'}); OUTS.push({id:'s25',s:25,m:1,name:'B'});
@@ -527,16 +705,13 @@
             if(r===0) {
                 const last = path[path.length-1];
                 if(state.doubleOut) return last.m === 2 ? path : null;
-                return path; // Any finish OK if not Double Out
+                return path; 
             }
             if(r<0 || d===0) return null;
-            
-            // Optimization: if doubleOut, ensure we don't leave 1
             if(state.doubleOut && r === 1) return null;
 
             for(let o of OUTS) {
                 if(o.s*o.m > r) continue;
-                // Heuristic: Prefer Triples for scoring, then Doubles for finish
                 const res = search(r - o.s*o.m, d-1, [...path, o]);
                 if(res) return res;
             }

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DartMaster V12 Hybrid</title>
+    <title>DartMaster V20 Ultimate</title>
     <style>
         :root {
             --bg: #0f172a;
@@ -13,9 +13,9 @@
             --accent: #38bdf8;
             --text: #f1f5f9;
             --dim: #94a3b8;
-            --badge-trip: #ef4444;
-            --badge-dbl: #22c55e;
-            --badge-sgl: #475569;
+            --gold: #fbbf24;
+            --p1-color: #facc15;
+            --p2-color: #ef4444;
         }
 
         body {
@@ -33,22 +33,14 @@
         .btn-green { background: var(--primary); color: #000; }
         .btn-grey { background: var(--panel); }
         .btn-red { background: var(--danger); }
-        .btn-outline { background: transparent; border: 1px solid var(--dim); color: var(--dim); }
-
-        /* --- COOKIE BANNER --- */
-        .cookie-banner {
-            position: fixed; bottom: 0; left: 0; width: 100%;
-            background: var(--panel); border-top: 1px solid var(--accent);
-            padding: 15px; box-sizing: border-box; z-index: 1000;
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        .cookie-text { font-size: 0.9rem; margin-right: 10px; }
 
         /* --- SETUP --- */
-        .container { max-width: 450px; margin: auto; padding: 20px; width: 100%; box-sizing: border-box; text-align: center; }
-        .mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 20px; }
-        .mode-btn { background: var(--panel); padding: 15px; border-radius: 8px; cursor: pointer; color: var(--dim); border: 2px solid transparent; transition: 0.2s; }
+        .container { max-width: 600px; margin: auto; padding: 20px; width: 100%; box-sizing: border-box; text-align: center; }
+        .mode-section-title { color: var(--accent); margin-top: 20px; margin-bottom: 5px; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; }
+        .mode-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 10px; }
+        .mode-btn { background: var(--panel); padding: 15px; border-radius: 8px; cursor: pointer; color: var(--dim); border: 2px solid transparent; transition: 0.2s; font-size: 0.95rem; }
         .mode-btn.active { border-color: var(--primary); color: #fff; background: #14532d; }
+        .sub-mode-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
         
         .options-section { background: var(--panel); padding: 10px; border-radius: 8px; margin-bottom: 15px; text-align: left; }
         .opt-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
@@ -59,137 +51,186 @@
         input:checked + .slider { background-color: var(--primary); }
         input:checked + .slider:before { transform: translateX(20px); }
 
-        /* INPUT METHOD SELECTOR */
         .input-selector { display: flex; gap: 10px; margin-bottom: 20px; }
         .input-sel-btn { flex: 1; padding: 10px; background: var(--panel); border: 1px solid #333; border-radius: 6px; cursor: pointer; color: var(--dim); }
         .input-sel-btn.active { background: var(--accent); color: #000; border-color: var(--accent); font-weight: bold; }
-
+        
         .input-row { display: flex; gap: 5px; margin-bottom: 8px; }
         input[type="text"] { flex: 1; padding: 10px; border-radius: 6px; border: 1px solid var(--dim); background: var(--panel); color: #fff; }
 
         /* --- GAME LAYOUT --- */
         .game-layout { display: flex; height: 100%; width: 100%; }
-        .game-layout .sidebar { flex: 1; max-width: 350px; }
-        .game-layout .board-area { flex: 2; }
-        .game-layout.layout-cricket .sidebar { flex: 1; max-width: none; border-right: 2px solid #333; }
-        .game-layout.layout-cricket .board-area { flex: 1; }
+        
+        /* Standard Layout (301, 501, etc.) */
+        .game-layout .sidebar { flex: 1; max-width: 350px; background: var(--panel); display: flex; flex-direction: column; overflow-y: auto; padding: 10px; border-right: 2px solid #333; }
+        .game-layout .right-column { flex: 2; display: flex; flex-direction: column; background: #000; position: relative; }
+        
+        /* CRICKET LAYOUT (More space for grid) */
+        .game-layout.layout-cricket .sidebar { 
+            flex: 1.5; /* 60% approx */
+            max-width: none; 
+            border-right: 2px solid #333; 
+        }
+        .game-layout.layout-cricket .right-column { 
+            flex: 1; /* 40% approx */
+        }
 
-        /* SIDEBAR */
-        .sidebar { background: var(--panel); display: flex; flex-direction: column; overflow-y: auto; padding: 10px; }
-        .player-card { background: #0f172a; padding: 10px; border-radius: 6px; margin-bottom: 8px; border-left: 4px solid transparent; opacity: 0.6; transition: 0.2s; }
+        /* HEADER */
+        .game-info-bar { 
+            background: #1e293b; color: #fff; 
+            padding: 5px 15px; 
+            display: flex; justify-content: space-between; align-items: center; 
+            border-bottom: 1px solid #333; font-weight: bold; font-size: 1rem; 
+            z-index: 20; height: 50px; box-sizing: border-box;
+        }
+        .info-left, .info-right { flex: 1; font-size: 0.9rem; color: var(--dim); }
+        .info-right { text-align: right; }
+        .info-center { flex: 2; text-align: center; color: var(--gold); font-size: 1.2rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .info-highlight { color: var(--accent); }
+
+        /* PLAYER CARD */
+        .player-card { background: #0f172a; padding: 8px 10px; border-radius: 6px; margin-bottom: 6px; border-left: 4px solid transparent; opacity: 0.6; transition: 0.2s; position: relative; }
         .player-card.active { border-left-color: var(--primary); opacity: 1; background: #1e293b; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
-        .card-top { display: flex; justify-content: space-between; align-items: baseline; }
-        .p-name { font-weight: bold; font-size: 1.1rem; }
-        .p-score { font-size: 1.8rem; font-family: monospace; font-weight: bold; color: var(--primary); }
-        .p-stats { font-size: 0.8rem; color: var(--dim); }
+        .player-card.eliminated { opacity: 0.3; filter: grayscale(1); text-decoration: line-through; }
+        .card-top { display: flex; justify-content: space-between; align-items: center; }
+        .p-name { font-weight: bold; font-size: 1rem; }
+        .p-score { font-size: 1.6rem; font-family: monospace; font-weight: bold; color: var(--primary); }
+        .p-stats { font-size: 0.75rem; color: var(--dim); margin-top: 1px; }
+        .dart-history { display: flex; gap: 4px; margin-top: 5px; min-height: 20px; }
+        .d-badge { padding: 1px 6px; border-radius: 3px; font-size: 0.75rem; font-weight: bold; color: white; min-width: 24px; text-align: center; }
+        .d-triple { background: #ef4444; } .d-double { background: #22c55e; color:#000; } .d-single { background: #475569; } .d-empty { background: #333; width: 20px; height: 6px; border-radius: 3px; align-self: center; }
 
-        /* BADGES */
-        .dart-history { display: flex; gap: 6px; margin-top: 8px; min-height: 24px; }
-        .d-badge { padding: 2px 8px; border-radius: 4px; font-size: 0.85rem; font-weight: bold; color: white; min-width: 28px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-        .d-triple { background: var(--badge-trip); }
-        .d-double { background: var(--badge-dbl); color: #000; }
-        .d-single { background: var(--badge-sgl); }
-        .d-empty { background: #333; width: 20px; height: 6px; border-radius: 3px; align-self: center; }
-
-        /* CRICKET TABLE */
-        .cricket-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 0.9rem; table-layout: fixed; }
-        .cricket-table th { color: var(--dim); padding-bottom: 8px; border-bottom: 1px solid #444; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        /* TABLES - IMPROVED HEADERS */
+        .cricket-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 0.95rem; table-layout: fixed; }
+        .cricket-table th { 
+            color: var(--dim); padding-bottom: 8px; border-bottom: 1px solid #444; 
+            overflow: visible; white-space: normal; word-wrap: break-word; /* Allow full name wrap */
+            vertical-align: bottom;
+        }
         .cricket-table td { text-align: center; border-bottom: 1px solid #333; padding: 6px 0; }
-        .c-target { font-weight: bold; background: #333; color: #fbbf24; border-radius: 4px; width: 35px; }
+        .c-target { font-weight: bold; background: #333; color: var(--gold); border-radius: 4px; width: 35px; }
         .c-closed-row { opacity: 0.2; text-decoration: line-through; }
-        .sym-3 { color: var(--danger); font-weight: 900; } 
-        .sym-1, .sym-2 { color: var(--text); }
+        .sym-3 { color: var(--danger); font-weight: 900; } .sym-1, .sym-2 { color: var(--text); }
+
+        /* CONNECT 4 GRID */
+        .c4-container { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; width: 100%; padding: 10px; box-sizing: border-box; }
+        .c4-header-row { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; width: 100%; max-width: 450px; margin-bottom: 5px; }
+        .c4-target-num { text-align: center; color: var(--gold); font-weight: bold; font-size: 1.1rem; background: #333; border-radius: 4px; padding: 5px 0; cursor: pointer; border: 1px solid #555; }
+        .c4-target-num:active { background: #555; }
+        .c4-board { 
+            display: grid; grid-template-columns: repeat(7, 1fr); 
+            gap: 8px; background: #1e3a8a; padding: 10px; border-radius: 10px; border: 4px solid #172554;
+            width: 100%; max-width: 450px; aspect-ratio: 7/6; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .c4-col { display: grid; grid-template-rows: repeat(6, 1fr); gap: 8px; cursor: pointer; }
+        .c4-col:hover { background: rgba(255,255,255,0.05); }
+        .c4-cell { background: #0f172a; border-radius: 50%; width: 100%; height: 100%; box-shadow: inset 2px 2px 5px rgba(0,0,0,0.5); position: relative; }
+        .c4-token { width: 100%; height: 100%; border-radius: 50%; box-shadow: inset -2px -2px 5px rgba(0,0,0,0.5), 2px 2px 5px rgba(255,255,255,0.2); animation: drop 0.3s ease-out; }
+        @keyframes drop { from { transform: translateY(-300%); } to { transform: translateY(0); } }
+        .c4-p1 { background: var(--p1-color); } .c4-p2 { background: var(--p2-color); }
+
+        /* TIC TAC TOE GRID - RESIZED LARGER */
+        .ttt-grid { 
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; 
+            margin-top: 10px; aspect-ratio: 1/1; width: 100%; max-width: 600px; 
+            margin-left: auto; margin-right: auto; 
+        }
+        .ttt-cell { 
+            background: #1e293b; border: 2px solid #333; border-radius: 12px; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            font-size: 4rem; color: var(--dim); position: relative; cursor: pointer;
+            box-shadow: 0 4px 0 #000;
+        }
+        .ttt-cell:active { transform: translateY(2px); box-shadow: 0 2px 0 #000; }
+        .ttt-cell.owned-p1 { background: rgba(56, 189, 248, 0.1); border-color: var(--accent); color: var(--accent); }
+        .ttt-cell.owned-p2 { background: rgba(248, 113, 113, 0.1); border-color: var(--danger); color: var(--danger); }
+        .ttt-target { font-size: 1.2rem; position: absolute; top: 10px; right: 10px; opacity: 0.6; font-weight: bold; }
 
         /* BOARD AREA */
-        .board-area { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #000; }
-        #dartboard-container { width: 95vmin; height: 95vmin; max-width: 650px; max-height: 650px; }
+        .board-content { flex: 1; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; }
         
-        /* MISS BUTTON OVERLAY */
-        .miss-overlay-btn {
-            position: absolute; bottom: 80px; right: 20px;
-            background: #333; color: #aaa; border: 1px solid #555;
-            width: 60px; height: 60px; border-radius: 50%;
-            font-weight: bold; cursor: pointer; z-index: 5;
-            display: flex; align-items: center; justify-content: center;
-        }
-        .miss-overlay-btn:active { background: #555; color: #fff; }
+        /* Dartboard Size Adjustments */
+        #dartboard-container { width: 92vmin; height: 92vmin; max-width: 600px; max-height: 600px; }
+        
+        /* Smaller dartboard for cricket mode to compensate for smaller right column */
+        .layout-cricket #dartboard-container { width: 70vmin; height: 70vmin; max-width: 450px; max-height: 450px; }
 
-        /* KEYPAD UI (New) */
-        #keypad-container { width: 100%; height: 100%; display: flex; flex-direction: column; padding: 10px; box-sizing: border-box; max-width: 500px; }
+        .miss-overlay-btn { position: absolute; bottom: 10px; right: 10px; background: #333; color: #aaa; border: 1px solid #555; width: 60px; height: 60px; border-radius: 50%; font-weight: bold; cursor: pointer; z-index: 5; display: flex; align-items: center; justify-content: center; }
+        
+        /* KEYPAD */
+        #keypad-interface { width: 100%; height: 100%; display: flex; flex-direction: column; padding: 10px; box-sizing: border-box; max-width: 500px; justify-content: center; }
         .mod-row { display: flex; gap: 10px; margin-bottom: 10px; height: 50px; }
         .mod-btn { flex: 1; border-radius: 8px; font-weight: bold; font-size: 1.1rem; background: var(--panel); color: var(--dim); border: 1px solid #444; }
-        .mod-btn.active-double { background: var(--badge-dbl); color: #000; border: none; }
-        .mod-btn.active-triple { background: var(--badge-trip); color: #fff; border: none; }
-        
-        .keys-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; flex: 1; }
+        .mod-btn.active-double { background: #22c55e; color: #000; border: none; }
+        .mod-btn.active-triple { background: #ef4444; color: #fff; border: none; }
+        .keys-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; flex: 1; max-height: 400px; }
         .key-btn { background: var(--panel); border: 1px solid #333; border-radius: 6px; font-size: 1.2rem; font-weight: bold; color: #fff; }
         .key-btn:active { background: var(--accent); color: #000; }
-        .key-bull { color: var(--danger); }
         .key-miss { color: var(--dim); font-size: 0.9rem; }
 
-        /* NOTIFICATIONS & ADVICE */
-        .advice-box { 
-            position: absolute; top: 20px; z-index: 20;
-            background: rgba(15, 23, 42, 0.95); border: 1px solid var(--primary);
-            color: #fff; padding: 10px 25px; border-radius: 30px; 
-            font-weight: bold; font-size: 1.3rem; pointer-events: none; display: none;
-        }
-        .notification-overlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            display: flex; align-items: center; justify-content: center;
-            background: rgba(0,0,0,0.6); z-index: 50; pointer-events: none;
-        }
-        .notify-text {
-            font-size: 5rem; font-weight: 900; color: var(--danger);
-            text-shadow: 0 0 20px rgba(0,0,0,1); transform: rotate(-10deg);
-            border: 5px solid var(--danger); padding: 20px 40px; border-radius: 10px;
-            background: rgba(0,0,0,0.8);
-        }
+        /* FOOTER */
+        .game-footer { height: 50px; background: var(--panel); border-top: 1px solid #333; display: flex; align-items: center; justify-content: center; padding: 0 10px; z-index: 20; }
+        .footer-btn { width: 100%; max-width: 200px; padding: 8px; font-size: 0.9rem; background: #334155; }
 
-        .controls { position: absolute; bottom: 20px; width: 100%; display: flex; justify-content: center; pointer-events: none; }
-        .controls button { pointer-events: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.5); width: auto; padding: 10px 30px; }
-
+        /* OVERLAYS */
+        .notification-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.6); z-index: 50; pointer-events: none; }
+        .notify-text { font-size: 3.5rem; font-weight: 900; color: var(--danger); text-shadow: 0 0 20px rgba(0,0,0,1); transform: rotate(-10deg); border: 5px solid var(--danger); padding: 15px 30px; border-radius: 10px; background: rgba(0,0,0,0.8); text-align: center; }
+        
         /* SVG */
         .segment { stroke: #555; stroke-width: 1px; cursor: pointer; transition: none; }
         .flashing { fill: #ffffff !important; }
         .highlighted { stroke: #fff; stroke-width: 3px; filter: drop-shadow(0 0 10px #fbbf24); animation: pulse 1s infinite alternate; fill-opacity: 0.9 !important; }
         @keyframes pulse { from { stroke-width: 3px; } to { stroke-width: 5px; } }
 
-        /* STATS */
-        .heatmap-wrapper { width: 300px; height: 300px; margin: 0 auto 20px; }
-        .legend { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--dim); margin-top: -10px; width: 300px; margin-left: auto; margin-right: auto;}
-        .gradient-bar { height: 6px; width: 100%; background: linear-gradient(to right, #00008b, #ff0000); border-radius: 3px; margin: 5px 0;}
-
         @media (max-width: 800px) {
-            .game-layout, .game-layout.layout-cricket { flex-direction: column-reverse; }
-            .sidebar, .game-layout.layout-cricket .sidebar { flex: none; width: 100%; max-width: 100%; height: 40vh; border-right: none; border-top: 1px solid #333; }
-            .board-area { flex: 1; height: 60vh; }
-            #dartboard-container { width: 80vmin; height: 80vmin; }
-            .miss-overlay-btn { bottom: 80px; right: 10px; width: 50px; height: 50px; font-size: 0.8rem; }
+            .game-layout { flex-direction: column-reverse; }
+            .sidebar { flex: none; width: 100%; max-width: 100%; height: 35vh; border-right: none; border-top: 1px solid #333; }
+            .right-column { flex: 1; height: 65vh; }
+            #dartboard-container { width: 75vmin; height: 75vmin; }
+            /* Mobile Cricket: Stacked so 60/40 doesn't apply width-wise but height-wise */
+            .game-layout.layout-cricket { flex-direction: column-reverse; }
+            .game-layout.layout-cricket .sidebar { flex: none; width: 100%; height: 45vh; }
+            .game-layout.layout-cricket .right-column { flex: 1; height: 55vh; }
         }
     </style>
 </head>
 <body>
 
-<div id="cookie-banner" class="cookie-banner hidden">
-    <div class="cookie-text">
-        Autoriser la sauvegarde des noms des joueurs (cookies/local storage) pour la prochaine fois ?
-    </div>
-    <div style="display:flex; gap:10px">
-        <button class="btn btn-outline" style="padding:5px 10px; font-size:0.8rem; margin:0;" onclick="hideCookie(false)">Non</button>
-        <button class="btn btn-green" style="padding:5px 10px; font-size:0.8rem; margin:0;" onclick="hideCookie(true)">Oui, sauvegarder</button>
-    </div>
-</div>
-
 <div id="setup" class="screen">
     <div class="container">
-        <h1 style="color:var(--primary)">🎯 DartMaster V12</h1>
+        <h1 style="color:var(--primary)">🎯 DartMaster V20</h1>
         
+        <div class="mode-section-title">Classique</div>
         <div class="mode-grid">
             <div class="mode-btn active" onclick="setMode('301')">301</div>
             <div class="mode-btn" onclick="setMode('501')">501</div>
             <div class="mode-btn" onclick="setMode('cricket')">Cricket</div>
-            <div class="mode-btn" onclick="setMode('cutthroat')">Cut Throat</div>
+            <div class="mode-btn" onclick="setMode('cutthroat')">CutThroat</div>
+        </div>
+
+        <div class="mode-section-title">Party & Fun</div>
+        <div class="mode-grid">
+            <div class="mode-btn" onclick="setMode('gotcha')">Gotcha (301)</div>
+            <div class="mode-btn" onclick="setMode('golf')">Golf (9 Trous)</div>
+            <div class="mode-btn" onclick="setMode('bermuda')">Bermuda Triangle</div>
+            <div class="mode-btn" onclick="setMode('shanghai')">Shanghai</div>
+            <div class="mode-btn" onclick="setMode('halveit')">Halve-It</div>
+            <div class="mode-btn" onclick="setMode('countup')">Count Up</div>
+            <div class="mode-btn" onclick="setMode('baseball')">Baseball</div>
+            <div class="mode-btn" onclick="setMode('killer')">Killer</div>
+        </div>
+
+        <div class="mode-section-title">Arcade / Jeux 2J</div>
+        <div class="mode-grid" style="grid-template-columns: 1fr;">
+             <div class="sub-mode-grid">
+                <div class="mode-btn" onclick="setMode('atc1')">ATC 1</div>
+                <div class="mode-btn" onclick="setMode('atc10')">ATC 10</div>
+                <div class="mode-btn" onclick="setMode('atc15')">ATC 15</div>
+            </div>
+            <div class="sub-mode-grid" style="margin-top:5px">
+                <div class="mode-btn" onclick="setMode('connect4')">Puissance 4</div>
+                <div class="mode-btn" onclick="setMode('tictactoe')">Tic Tac Toe</div>
+            </div>
         </div>
 
         <div class="options-section">
@@ -198,49 +239,56 @@
                 <label class="switch"><input type="checkbox" id="chk-double-out" checked><span class="slider"></span></label>
             </div>
             
-            <div style="margin-top:10px; margin-bottom:5px; font-size:0.9rem; color:var(--dim);">Mode de Saisie :</div>
-            <div class="input-selector">
-                <div class="input-sel-btn active" id="sel-graphic" onclick="setInputMode('graphic')">Cible Tactile</div>
-                <div class="input-sel-btn" id="sel-buttons" onclick="setInputMode('buttons')">Boutons (Clavier)</div>
+            <div id="input-selector-div">
+                <div style="margin-top:10px; margin-bottom:5px; font-size:0.9rem; color:var(--dim);">Mode de Saisie :</div>
+                <div class="input-selector">
+                    <div class="input-sel-btn active" id="sel-graphic" onclick="setInputMode('graphic')">Cible Tactile</div>
+                    <div class="input-sel-btn" id="sel-buttons" onclick="setInputMode('buttons')">Boutons</div>
+                </div>
             </div>
         </div>
 
         <div id="players-list"></div>
         <button class="btn btn-grey" onclick="addPlayerField()">+ Ajouter Joueur</button>
         <br><br>
-        <button class="btn btn-green" style="padding:15px; font-size:1.2rem;" onclick="startGame()">LANCER LA PARTIE</button>
+        <button class="btn btn-green" style="padding:15px; font-size:1.2rem;" onclick="startGame()">LANCER</button>
     </div>
 </div>
 
 <div id="game" class="screen hidden">
     <div id="game-layout-container" class="game-layout">
         <div class="sidebar" id="scoreboard"></div>
-        
-        <div class="board-area">
-            <div id="notify-layer" class="notification-overlay hidden">
-                <div id="notify-msg" class="notify-text">BUST !</div>
-            </div>
+        <div class="right-column">
             
-            <div id="advice" class="advice-box"></div>
-            
-            <div id="graphic-interface" style="width:100%; height:100%; display:flex; justify-content:center; align-items:center;">
-                <div id="dartboard-container"></div>
-                <button class="miss-overlay-btn" onclick="handleThrow(0,1,'miss')">MISS</button>
+            <div class="game-info-bar">
+                <div class="info-left"><span id="mode-display">301</span></div>
+                <div class="info-center"><span id="advice-display"></span></div>
+                <div class="info-right"><span id="round-display"></span></div>
             </div>
 
-            <div id="keypad-interface" class="hidden" style="width:100%; height:100%; justify-content:center; align-items:center;">
-                <div id="keypad-container">
-                    <div class="mod-row">
-                        <button class="mod-btn" id="btn-mod-2" onclick="toggleMod(2)">DOUBLE</button>
-                        <button class="mod-btn" id="btn-mod-3" onclick="toggleMod(3)">TRIPLE</button>
-                    </div>
-                    <div class="keys-grid" id="keys-grid">
+            <div class="board-content">
+                <div id="notify-layer" class="notification-overlay hidden">
+                    <div id="notify-msg" class="notify-text">BUST !</div>
+                </div>
+                
+                <div id="graphic-interface" class="hidden" style="width:100%; height:100%; display:flex; justify-content:center; align-items:center;">
+                    <div id="dartboard-container"></div>
+                    <div id="game-overlay-container" class="hidden" style="width:100%; height:100%; display:flex; justify-content:center; align-items:center;"></div>
+                    <button class="miss-overlay-btn" onclick="handleThrow(0,1,'miss')">MISS</button>
+                </div>
+
+                <div id="keypad-interface" class="hidden">
+                    <div id="keypad-container">
+                        <div class="mod-row">
+                            <button class="mod-btn" id="btn-mod-2" onclick="toggleMod(2)">DOUBLE</button>
+                            <button class="mod-btn" id="btn-mod-3" onclick="toggleMod(3)">TRIPLE</button>
                         </div>
+                        <div class="keys-grid" id="keys-grid"></div>
+                    </div>
                 </div>
             </div>
-
-            <div class="controls">
-                <button class="btn btn-grey" onclick="undo()">↩ Corriger</button>
+            <div class="game-footer">
+                <button class="footer-btn btn btn-grey" onclick="undo()">↩ Corriger</button>
             </div>
         </div>
     </div>
@@ -249,14 +297,6 @@
 <div id="stats" class="screen hidden">
     <div class="container">
         <h1 id="winner-text" style="color:var(--primary)">TERMINÉ !</h1>
-        <h3>Heatmap</h3>
-        <div class="heatmap-wrapper" id="heatmap"></div>
-        <div class="legend">
-            <div style="width:100%">
-                <div class="gradient-bar"></div>
-                <div style="display:flex; justify-content:space-between;"><span>0%</span><span>100%</span></div>
-            </div>
-        </div>
         <table class="cricket-table" style="margin-bottom: 20px;">
             <thead><tr><th>Joueur</th><th id="stat-col-head">Stats</th></tr></thead>
             <tbody id="stats-body"></tbody>
@@ -269,84 +309,41 @@
 </div>
 
 <script>
-    // --- GLOBAL CONFIG ---
+    // --- CONSTANTS ---
     const TARGETS = [20, 19, 18, 17, 16, 15, 25];
-    const ALL_SEGMENTS = [];
-    for(let i=1; i<=20; i++) { ALL_SEGMENTS.push('s'+i, 'so'+i, 'si'+i, 'd'+i, 't'+i); }
-    ALL_SEGMENTS.push('s25', 'd25');
+    const HALVE_IT_ROUNDS = [20, 19, 18, 17, 16, 15, 25]; 
+    const BERMUDA_ROUNDS = [12, 13, 14, 99, 15, 16, 17, 999, 18, 19, 20, 25, 50]; 
+    const TTT_GRID = [12, 20, 18, 11, 25, 6, 7, 19, 3];
 
     let state = {
         mode: '301',
-        inputMode: 'graphic', // 'graphic' or 'buttons'
+        modeName: '',
+        inputMode: 'graphic',
         doubleOut: true,
         players: [],
         turn: 0,
         darts: [],
         history: [], 
-        globalStats: {},
         winner: null,
         turnStartScore: 0,
         isPaused: false,
-        isSolo: false,
-        keypadMod: 1 // 1, 2, 3
+        keypadMod: 1,
+        gameData: {} 
     };
 
-    // --- COOKIES / STORAGE ---
-    function checkCookieConsent() {
-        const consent = localStorage.getItem('dm_consent');
-        if(consent === 'true') {
-            loadPlayers();
-        } else if(consent === null) {
-            document.getElementById('cookie-banner').classList.remove('hidden');
-        }
-    }
-
-    function hideCookie(accept) {
-        document.getElementById('cookie-banner').classList.add('hidden');
-        if(accept) {
-            localStorage.setItem('dm_consent', 'true');
-            saveCurrentPlayers(); // Save current inputs if any
-        } else {
-            localStorage.setItem('dm_consent', 'false');
-        }
-    }
-
-    function saveCurrentPlayers() {
-        if(localStorage.getItem('dm_consent') !== 'true') return;
-        const inputs = document.querySelectorAll('#players-list input');
-        const names = Array.from(inputs).map(i => i.value).filter(v => v.trim() !== "");
-        localStorage.setItem('dm_players', JSON.stringify(names));
-    }
-
-    function loadPlayers() {
-        const raw = localStorage.getItem('dm_players');
-        if(raw) {
-            const names = JSON.parse(raw);
-            const list = document.getElementById('players-list');
-            list.innerHTML = ''; // clear default
+    function init() { 
+        if(localStorage.getItem('dm_players')) {
+            const names = JSON.parse(localStorage.getItem('dm_players'));
             names.forEach(n => addPlayerField(n));
-        }
-        if(document.getElementById('players-list').children.length === 0) {
-            addPlayerField(); addPlayerField();
-        }
-    }
-
-    // --- INIT & SETUP ---
-    function init() {
-        checkCookieConsent();
-        if(document.getElementById('players-list').children.length === 0) {
-             addPlayerField(); addPlayerField();
-        }
+        } else { addPlayerField(); addPlayerField(); }
         genKeypad();
     }
     
     function addPlayerField(val) {
         const list = document.getElementById('players-list');
         const count = list.children.length + 1;
-        const defaultName = val || `Joueur ${count}`;
-        
         const d = document.createElement('div'); d.className = 'input-row';
-        d.innerHTML = `<input type="text" value="${defaultName}" placeholder="Nom"><button class="btn btn-red" style="width:40px;" onclick="this.parentElement.remove()">x</button>`;
+        d.innerHTML = `<input type="text" value="${val || 'Joueur '+count}" placeholder="Nom"><button class="btn btn-red" style="width:40px;" onclick="this.parentElement.remove()">x</button>`;
         list.appendChild(d);
     }
     
@@ -355,9 +352,17 @@
         document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active')); 
         event.target.classList.add('active');
         const opt = document.getElementById('opt-double-out');
+        const inp = document.getElementById('input-selector-div');
+        
         if(m.includes('01')) opt.classList.remove('hidden'); else opt.classList.add('hidden');
+        
+        if(m === 'connect4' || m === 'tictactoe') {
+            inp.classList.add('hidden');
+            setInputMode('graphic');
+        } else {
+            inp.classList.remove('hidden');
+        }
     }
-
     function setInputMode(m) {
         state.inputMode = m;
         document.querySelectorAll('.input-sel-btn').forEach(b => b.classList.remove('active'));
@@ -365,144 +370,173 @@
     }
 
     function startGame() {
-        saveCurrentPlayers(); // Save names if allowed
-
         const inputs = document.querySelectorAll('#players-list input');
+        if((state.mode === 'connect4' || state.mode === 'tictactoe') && inputs.length !== 2) return alert("Ce mode se joue obligatoirement à 2 joueurs.");
+
         let ps = [];
         inputs.forEach(i => {
-            if(i.value.trim()) ps.push({
-                name: i.value.trim(),
-                score: state.mode.includes('01') ? parseInt(state.mode) : 0,
-                cricket: Object.fromEntries(TARGETS.map(t=>[t,0])),
-                stats: { throws: 0, points: 0, marks: 0, pointsGiven: 0 } 
-            });
+            if(i.value.trim()) {
+                let p = {
+                    name: i.value.trim(),
+                    score: 0,
+                    stats: { throws: 0, points: 0, marks: 0 },
+                    lives: (state.mode === 'killer' ? 0 : 0), 
+                    killerTarget: null,
+                    atcTarget: 1,
+                    eliminated: false,
+                    halveItHit: false 
+                };
+                if(state.mode.includes('01')) p.score = parseInt(state.mode);
+                if(state.mode === 'gotcha') p.score = 0;
+                if(state.mode.includes('cricket') || state.mode === 'cutthroat') p.cricket = Object.fromEntries(TARGETS.map(t=>[t,0]));
+                if(state.mode.includes('atc')) {
+                    if(state.mode === 'atc10') p.atcTarget = 10;
+                    else if(state.mode === 'atc15') p.atcTarget = 15;
+                    else p.atcTarget = 1;
+                }
+                if(state.mode === 'halveit' || state.mode === 'bermuda') p.score = 40; 
+                ps.push(p);
+            }
         });
         if(ps.length < 1) return alert("Ajoutez au moins 1 joueur");
-        
+        localStorage.setItem('dm_players', JSON.stringify(ps.map(p=>p.name)));
+
         state.players = ps; 
-        state.isSolo = (ps.length === 1);
-        state.doubleOut = document.getElementById('chk-double-out').checked;
         state.turn = 0; state.darts = []; state.history = []; state.winner = null; state.isPaused = false;
-        state.globalStats = {}; ALL_SEGMENTS.forEach(id => state.globalStats[id] = 0);
+        state.doubleOut = document.getElementById('chk-double-out').checked;
         state.turnStartScore = state.players[0].score;
+        
+        state.gameData = {
+            round: 1, 
+            tttBoard: Array(9).fill(null),
+            c4Targets: [],
+            c4Grid: Array(7).fill().map(() => Array(6).fill(null))
+        };
+
+        if(state.mode === 'connect4') {
+            let nums = [];
+            while(nums.length < 7) {
+                let r = Math.floor(Math.random() * 20) + 1;
+                if(!nums.includes(r)) nums.push(r);
+            }
+            state.gameData.c4Targets = nums;
+        }
+
+        const map = {
+            '301':'301', '501':'501', 'cricket':'Cricket', 'cutthroat':'Cut Throat',
+            'baseball':'Baseball', 'killer':'Killer', 'connect4':'Puissance 4', 'tictactoe':'Tic Tac Toe',
+            'atc1':'ATC 1', 'atc10':'ATC 10', 'atc15':'ATC 15', 'golf':'Golf', 'gotcha':'Gotcha (301)',
+            'shanghai':'Shanghai', 'halveit':'Halve-It', 'bermuda':'Bermuda', 'countup':'Count Up'
+        };
+        state.modeName = map[state.mode] || state.mode;
 
         // Layout Config
         const layout = document.getElementById('game-layout-container');
         if(state.mode.includes('cricket') || state.mode === 'cutthroat') layout.className = "game-layout layout-cricket";
         else layout.className = "game-layout";
 
-        // Input Interface Config
-        const gr = document.getElementById('graphic-interface');
-        const kp = document.getElementById('keypad-interface');
-        if(state.inputMode === 'graphic') {
-            gr.classList.remove('hidden'); kp.classList.add('hidden');
-            genBoard('dartboard-container', true); 
-        } else {
-            gr.classList.add('hidden'); kp.classList.remove('hidden');
-            kp.style.display = 'flex'; // Restore flex display
-        }
+        document.getElementById('graphic-interface').className = state.inputMode === 'graphic' ? '' : 'hidden';
+        document.getElementById('keypad-interface').className = state.inputMode === 'buttons' ? '' : 'hidden';
 
-        show('game'); updateUI();
+        show('game'); genBoard('dartboard-container', true); updateUI();
     }
-    function replay() { startGame(); }
-    function show(id) { document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden')); document.getElementById(id).classList.remove('hidden'); }
-
-    // --- KEYPAD LOGIC ---
-    function genKeypad() {
-        const grid = document.getElementById('keys-grid');
-        grid.innerHTML = '';
-        // 1-20 buttons
-        for(let i=1; i<=20; i++) {
-            grid.innerHTML += `<button class="key-btn" onclick="handleKeypadThrow(${i})">${i}</button>`;
-        }
-        // Special
-        grid.innerHTML += `<button class="key-btn key-miss" onclick="handleThrow(0,1,'miss')">MISS</button>`;
-        grid.innerHTML += `<button class="key-btn key-bull" onclick="handleKeypadThrow(25)">BULL</button>`;
-        // Placeholder filler to make grid nice (5 cols)
-        grid.innerHTML += `<div style="grid-column: span 3"></div>`;
-    }
-
-    function toggleMod(m) {
-        if(state.keypadMod === m) state.keypadMod = 1; // toggle off
-        else state.keypadMod = m;
-        updateKeypadVisuals();
-    }
-
-    function updateKeypadVisuals() {
-        document.getElementById('btn-mod-2').className = `mod-btn ${state.keypadMod===2?'active-double':''}`;
-        document.getElementById('btn-mod-3').className = `mod-btn ${state.keypadMod===3?'active-triple':''}`;
-    }
-
-    function handleKeypadThrow(score) {
-        let mul = state.keypadMod;
-        
-        // Validation logic
-        if(score === 25 && mul === 3) mul = 1; // No triple bull
-        if(score === 25 && mul === 2) { 
-            // Double Bull
-        }
-        
-        // ID generation for stats/heatmap mapping
-        let id = '';
-        if(score === 25) id = (mul === 2) ? 'd25' : 's25';
-        else if (score === 0) id = 'miss';
-        else {
-            if(mul===1) id = 's'+score; // map to single (approx)
-            if(mul===2) id = 'd'+score;
-            if(mul===3) id = 't'+score;
-        }
-
-        handleThrow(score, mul, id);
-        
-        // Reset mod
-        state.keypadMod = 1; 
-        updateKeypadVisuals();
-    }
-
-    // --- GAME ENGINE ---
+    
     function handleThrow(score, mul, id) {
         if(state.winner || state.isPaused || state.darts.length >= 3) return;
 
-        // Visual feedback (Graphic mode only)
+        const pIdx = state.turn;
+        const pCopy = JSON.parse(JSON.stringify(state.players));
+        const gDataCopy = JSON.parse(JSON.stringify(state.gameData));
+        state.history.push({ pIdx, playersState: pCopy, gameData: gDataCopy, dartsLen: state.darts.length, turnStart: state.turnStartScore });
+
         if(state.inputMode === 'graphic' && id !== 'miss') {
             const el = document.getElementById(id);
-            if(el) { el.classList.add('flashing'); setTimeout(() => { el.classList.remove('flashing'); }, 150); }
+            if(el) { el.classList.add('flashing'); setTimeout(() => el.classList.remove('flashing'), 150); }
         }
 
-        const pIdx = state.turn;
-        const pCopy = JSON.parse(JSON.stringify(state.players[pIdx]));
-        state.history.push({ 
-            pIdx, pState: pCopy, dartsLen: state.darts.length, 
-            turnStart: state.turnStartScore, globalId: id 
-        });
-
         state.darts.push({ score, mul, id });
-        if(id !== 'miss') state.globalStats[id]++;
-        
         const p = state.players[pIdx];
         p.stats.throws++;
         
-        if(state.mode.includes('01')) {
-            processX01DartImmediate(p, {score, mul});
-        } else {
-            const win = processCricketDart(p, {score, mul});
-            if(win) { state.winner = p; endGame(); return; }
-        }
+        let win = false;
+        // Logic Dispatch
+        if(state.mode.includes('01')) win = processX01(p, {score, mul});
+        else if(state.mode.includes('cricket') || state.mode === 'cutthroat') win = processCricket(p, {score, mul});
+        else if(state.mode.includes('atc')) win = processATC(p, score);
+        else if(state.mode === 'baseball') processBaseball(p, {score, mul});
+        else if(state.mode === 'killer') win = processKiller(p, {score, mul});
+        else if(state.mode === 'connect4') win = processConnect4(pIdx, score);
+        else if(state.mode === 'tictactoe') win = processTicTacToe(pIdx, {score, mul});
+        else if(state.mode === 'golf') win = processGolf(p, {score, mul, id});
+        else if(state.mode === 'shanghai') processShanghai(p, {score, mul});
+        else if(state.mode === 'halveit') processHalveIt(p, {score, mul});
+        else if(state.mode === 'bermuda') processBermuda(p, {score, mul});
+        else if(state.mode === 'countup') processCountUp(p, {score, mul});
+        else if(state.mode === 'gotcha') win = processGotcha(p, {score, mul});
 
+        if(win) { 
+            state.winner = p; 
+            endGame(); 
+            return; 
+        }
         updateUI();
 
-        if(!state.winner && state.darts.length === 3 && !state.isPaused) {
+        if(!state.winner && !state.isPaused && state.darts.length === 3) {
             setTimeout(endTurn, 600);
         }
     }
 
     function endTurn() {
         if(state.winner) return;
-        state.turn = (state.turn + 1) % state.players.length;
-        state.darts = [];
-        state.turnStartScore = state.players[state.turn].score;
+        const p = state.players[state.turn];
+
+        if(state.mode === 'golf') {
+            let best = 5;
+            state.darts.forEach(d => {
+                if(d.score === state.gameData.round) {
+                    let s = 5;
+                    if(d.mul === 2) s = 1; else if(d.mul === 3) s = 2; else if(d.id.startsWith('si')) s = 3; else s = 4; 
+                    if(s < best) best = s;
+                }
+            });
+            p.score += best; 
+        }
+        
+        if(state.mode === 'halveit' || state.mode === 'bermuda') {
+            if(!p.roundHit) { p.score = Math.floor(p.score / 2); notify("DIVISÉ / 2", true, 'red'); }
+            p.roundHit = false; 
+        }
+
+        if(state.mode.includes('01')) {
+            const turnTotal = state.turnStartScore - p.score;
+            if(turnTotal >= 150) notify("HIGH TON!", false, 'gold');
+            else if(turnTotal >= 100) notify("LOW TON", false, 'blue');
+        }
+
+        let next = (state.turn + 1) % state.players.length;
+        let loops = 0;
+        while(state.players[next].eliminated && loops < state.players.length) {
+            next = (next + 1) % state.players.length; loops++;
+        }
+        
+        if(next === 0 || next < state.turn) {
+            state.gameData.round++;
+            if(state.mode === 'baseball' && state.gameData.round > 9) { state.winner = getHighScoreWinner(); endGame(); return; }
+            if(state.mode === 'shanghai' && state.gameData.round > 7) { state.winner = getHighScoreWinner(); endGame(); return; }
+            if(state.mode === 'halveit' && state.gameData.round > 7) { state.winner = getHighScoreWinner(); endGame(); return; }
+            if(state.mode === 'bermuda' && state.gameData.round > 13) { state.winner = getHighScoreWinner(); endGame(); return; }
+            if(state.mode === 'countup' && state.gameData.round > 8) { state.winner = getHighScoreWinner(); endGame(); return; }
+            if(state.mode === 'golf' && state.gameData.round > 9) { state.winner = getLowScoreWinner(); endGame(); return; }
+        }
+        
+        if(state.mode === 'killer') {
+            const survivors = state.players.filter(p => !p.eliminated);
+            if(survivors.length === 1 && state.players.length > 1) { state.winner = survivors[0]; endGame(); return; }
+        }
+
+        state.turn = next; state.darts = [];
+        state.turnStartScore = state.players[next].score;
         state.isPaused = false;
-        // Reset keypad mod just in case
         state.keypadMod = 1; updateKeypadVisuals();
         updateUI();
     }
@@ -510,146 +544,228 @@
     function undo() {
         if(state.isPaused || state.history.length === 0) return;
         const last = state.history.pop();
-        state.players[last.pIdx] = last.pState;
-        state.turn = last.pIdx;
-        state.turnStartScore = last.turnStart;
-        if(last.globalId !== 'miss' && state.globalStats[last.globalId] > 0) state.globalStats[last.globalId]--;
+        state.players = last.playersState; state.gameData = last.gameData;
+        state.turn = last.pIdx; state.turnStartScore = last.turnStart;
         if(state.darts.length > 0) state.darts.pop(); else state.darts = [];
         updateUI();
     }
 
-    // --- LOGIC: X01 ---
-    function processX01DartImmediate(p, d) {
-        const val = d.score * d.mul;
-        const newScore = p.score - val;
-        let bust = false;
-        
-        if(state.doubleOut) {
-            if(newScore < 0 || newScore === 1) bust = true;
-        } else {
-            if(newScore < 0) bust = true;
-        }
+    function getHighScoreWinner() { return state.players.sort((a,b) => b.score - a.score)[0]; }
+    function getLowScoreWinner() { return state.players.sort((a,b) => a.score - b.score)[0]; }
 
-        if(bust) { triggerBust(p); return; }
-
+    // --- LOGIC FUNCTIONS ---
+    function processX01(p, d) {
+        const val = d.score * d.mul; const newScore = p.score - val;
+        let bust = (newScore < 0) || (state.doubleOut && (newScore < 0 || newScore === 1));
+        if(bust) { notify("BUST", true, 'red'); return false; }
         if(newScore === 0) {
-            let win = false;
-            if(state.doubleOut) {
-                if(d.mul === 2 || (d.score === 25 && d.mul === 2)) win = true;
-            } else {
-                win = true;
-            }
-
-            if(win) {
-                p.score = 0;
-                p.stats.points += (state.turnStartScore - 0);
-                state.winner = p;
-                endGame();
-                return;
-            } else {
-                triggerBust(p); return;
-            }
+            let win = !state.doubleOut || (d.mul === 2 || (d.score === 25 && d.mul === 2));
+            if(win) { 
+                p.score = 0; 
+                p.stats.points += val; // Add final points
+                return true; 
+            } else { notify("BUST", true, 'red'); return false; }
         }
         p.stats.points += val;
+        p.score = newScore; 
+        return false;
+    }
+    
+    function processGotcha(p, d) {
+        const val = d.score * d.mul;
+        const newScore = p.score + val;
+        if(newScore > 301) { notify("BUST", true, 'red'); return false; }
         p.score = newScore;
+        state.players.forEach((opp, i) => {
+            if(i !== state.turn && opp.score === p.score) { opp.score = 0; notify("GOTCHA!", false, 'gold'); }
+        });
+        if(p.score === 301) return true;
+        return false;
     }
 
-    function triggerBust(p) {
-        state.isPaused = true; 
-        const overlay = document.getElementById('notify-layer');
-        overlay.classList.remove('hidden'); 
-        setTimeout(() => {
-            overlay.classList.add('hidden'); 
-            p.score = state.turnStartScore; 
-            endTurn(); 
-        }, 1500);
-    }
-
-    // --- LOGIC: CRICKET ---
-    function processCricketDart(p, d) {
-        if(!TARGETS.includes(d.score)) return false;
-        let hits = d.mul;
-        while(hits > 0) {
-            if(p.cricket[d.score] < 3) {
-                p.cricket[d.score]++;
-                p.stats.marks++;
-            } else {
-                if(state.isSolo) { /* Solo just closes */ } 
-                else {
-                    const closedAll = state.players.every(pl => pl.cricket[d.score] >= 3);
-                    if(!closedAll) {
-                        if(state.mode === 'cricket') {
-                            p.score += d.score;
-                            p.stats.marks++;
-                        } else if(state.mode === 'cutthroat') {
-                            state.players.forEach(opp => {
-                                if(opp !== p && opp.cricket[d.score] < 3) opp.score += d.score;
-                            });
-                            p.stats.pointsGiven += d.score;
-                            p.stats.marks++;
-                        }
-                    }
-                }
-            }
-            hits--;
-            if(checkWin(p)) return true;
+    function processGolf(p, d) {
+        if(d.score === state.gameData.round && d.mul === 2) {
+            while(state.darts.length < 3) state.darts.push(d); 
         }
         return false;
     }
 
-    function checkWin(p) {
-        const closed = TARGETS.every(t => p.cricket[t] >= 3);
-        if(!closed) return false;
-        if(state.isSolo) return true;
-        if(state.mode === 'cricket') return state.players.every(opp => p.score >= opp.score);
-        return state.players.every(opp => p.score <= opp.score);
+    function processCricket(p, d) {
+        if(!TARGETS.includes(d.score)) return false;
+        let hits = d.mul;
+        while(hits > 0) {
+            if(p.cricket[d.score] < 3) { p.cricket[d.score]++; p.stats.marks++; } 
+            else {
+                const closedAll = state.players.every(pl => pl.cricket[d.score] >= 3);
+                if(!closedAll) {
+                    if(state.mode === 'cricket') { p.score += d.score; p.stats.marks++; }
+                    else {
+                        state.players.forEach(opp => { if(opp !== p && opp.cricket[d.score] < 3) opp.score += d.score; });
+                        p.stats.marks++;
+                    }
+                }
+            }
+            hits--;
+            const closed = TARGETS.every(t => p.cricket[t] >= 3);
+            if(closed) {
+                const bestScore = state.mode === 'cricket' ? state.players.every(o => p.score >= o.score) : state.players.every(o => p.score <= o.score);
+                if(bestScore) return true;
+            }
+        }
+        return false;
+    }
+    
+    function processConnect4(pIdx, score) {
+        const colIdx = state.gameData.c4Targets.indexOf(score);
+        if(colIdx === -1) return false;
+        const col = state.gameData.c4Grid[colIdx];
+        let rowIdx = -1;
+        for(let r = 5; r >= 0; r--) { if(col[r] === null) { rowIdx = r; break; } }
+        if(rowIdx !== -1) {
+            state.gameData.c4Grid[colIdx][rowIdx] = pIdx;
+            const g = state.gameData.c4Grid;
+            for(let c=0; c<7; c++) for(let r=0; r<6; r++) {
+                if(g[c][r] !== pIdx) continue;
+                if(c+3<7 && g[c+1][r]===pIdx && g[c+2][r]===pIdx && g[c+3][r]===pIdx) return true;
+                if(r+3<6 && g[c][r+1]===pIdx && g[c][r+2]===pIdx && g[c][r+3]===pIdx) return true;
+                if(c+3<7 && r+3<6 && g[c+1][r+1]===pIdx && g[c+2][r+2]===pIdx && g[c+3][r+3]===pIdx) return true;
+                if(c+3<7 && r-3>=0 && g[c+1][r-1]===pIdx && g[c+2][r-2]===pIdx && g[c+3][r-3]===pIdx) return true;
+            }
+        }
+        return false;
     }
 
-    // --- UI RENDER ---
-    function formatBadge(d) {
-        if(d.score === 0) return { txt: 'MISS', cls: 'd-single' };
-        if(d.score===25) return { txt: d.mul===2?'DB':'SB', cls: d.mul===2?'d-double':'d-single'};
-        let t = d.score;
-        let c = 'd-single';
-        if(d.mul===3) { t='T'+d.score; c='d-triple'; }
-        if(d.mul===2) { t='D'+d.score; c='d-double'; }
-        if(d.mul===1) { t='S'+d.score; }
-        return { txt: t, cls: c };
+    function processBermuda(p, d) {
+        const target = BERMUDA_ROUNDS[state.gameData.round - 1];
+        let hit = false;
+        if(target === 99) { if(d.mul === 2) hit = true; } 
+        else if(target === 999) { if(d.mul === 3) hit = true; } 
+        else if(target === 25) { if(d.score === 25 && d.mul === 1) hit = true; }
+        else if(target === 50) { if(d.score === 25 && d.mul === 2) hit = true; }
+        else if(d.score === target) hit = true;
+        if(hit) { p.score += (d.score * d.mul); p.roundHit = true; }
+    }
+
+    function processTicTacToe(pIdx, d) {
+        const idx = TTT_GRID.indexOf(d.score);
+        if(idx !== -1 && state.gameData.tttBoard[idx] === null) {
+            state.gameData.tttBoard[idx] = pIdx;
+            const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+            if(wins.some(l => state.gameData.tttBoard[l[0]]===pIdx && state.gameData.tttBoard[l[1]]===pIdx && state.gameData.tttBoard[l[2]]===pIdx)) return true;
+        }
+        return false;
+    }
+
+    function processATC(p, score) { if(score === p.atcTarget) { p.atcTarget++; if(p.atcTarget > 20) return true; } return false; }
+    function processBaseball(p, d) { if(d.score === state.gameData.round) p.score += d.mul; }
+    function processShanghai(p, d) { if(d.score === state.gameData.round) p.score += (d.score * d.mul); }
+    function processHalveIt(p, d) { const t=HALVE_IT_ROUNDS[state.gameData.round-1]; if(d.score===t) { p.score += (d.score * d.mul); p.roundHit=true; } }
+    function processCountUp(p, d) { p.score += (d.score * d.mul); }
+    function processKiller(p, d) {
+        if(p.killerTarget === null) { if(d.score>0 && d.score<25 && !state.players.some(pl=>pl.killerTarget===d.score)) { p.killerTarget=d.score; p.lives=3; } return false; }
+        const v = state.players.find(pl => pl.killerTarget === d.score && !pl.eliminated);
+        if(v && v !== p) { v.lives--; if(v.lives <= 0) v.eliminated = true; }
+        return false;
+    }
+
+    // --- UI ---
+    function notify(msg, isBust, color) {
+        state.isPaused = isBust;
+        const el = document.getElementById('notify-layer');
+        const txt = document.getElementById('notify-msg');
+        txt.innerText = msg;
+        txt.style.color = color === 'gold' ? 'var(--gold)' : (color==='blue' ? 'var(--accent)' : 'var(--danger)');
+        txt.style.borderColor = txt.style.color;
+        el.classList.remove('hidden');
+        setTimeout(() => { el.classList.add('hidden'); if(isBust) { state.players[state.turn].score = state.turnStartScore; endTurn(); } }, 1500);
     }
 
     function updateUI() {
-        const sb = document.getElementById('scoreboard'); sb.innerHTML = '';
-        const isCut = state.mode === 'cutthroat';
-        const isCric = state.mode.includes('cricket');
+        const m = state.mode;
+        document.getElementById('mode-display').innerText = state.modeName;
+        let roundTxt = `Round ${state.gameData.round}`;
+        if(m.includes('atc')) roundTxt = "";
+        if(m === 'halveit') roundTxt = `Cible: ${HALVE_IT_ROUNDS[state.gameData.round-1]===25?'Bull':HALVE_IT_ROUNDS[state.gameData.round-1]}`;
+        if(m === 'bermuda') {
+            let t = BERMUDA_ROUNDS[state.gameData.round-1];
+            if(t===99) t="Double"; if(t===999) t="Triple"; if(t===25) t="Bull"; if(t===50) t="D-Bull";
+            roundTxt = `Cible: ${t}`;
+        }
+        if(m === 'shanghai' || m === 'baseball' || m === 'golf') roundTxt = `Cible: ${state.gameData.round}`;
+        if(m === 'connect4') roundTxt = "";
+        if(m === 'gotcha') roundTxt = `Cible: 301`;
+        document.getElementById('round-display').innerHTML = `<span class="info-highlight">${roundTxt}</span>`;
 
+        const sb = document.getElementById('scoreboard'); sb.innerHTML = '';
         state.players.forEach((p, i) => {
             const active = i === state.turn;
             let badges = "";
             if(active) {
                 state.darts.forEach(d => {
-                    const info = formatBadge(d);
-                    badges += `<div class="d-badge ${info.cls}">${info.txt}</div>`;
+                    let txt = d.score===25?(d.mul===2?'DB':'SB'):(d.score===0?'MISS':(d.mul===3?'T'+d.score:(d.mul===2?'D'+d.score:'S'+d.score)));
+                    let cls = d.score===25?(d.mul===2?'d-double':'d-single'):(d.score===0?'d-single':(d.mul===3?'d-triple':(d.mul===2?'d-double':'d-single')));
+                    badges += `<div class="d-badge ${cls}">${txt}</div>`;
                 });
                 for(let k=state.darts.length; k<3; k++) badges += `<div class="d-empty"></div>`;
             }
 
-            let statLine = "";
-            if(p.stats.throws > 0) {
-                if(state.mode.includes('01')) statLine = `Avg: ${((p.stats.points/p.stats.throws)*3).toFixed(1)}`;
-                else statLine = `MPR: ${((p.stats.marks/p.stats.throws)*3).toFixed(2)}`;
-            } else statLine = "-";
+            let mainVal = p.score; let sub = "";
+            if(m.includes('atc')) { mainVal = p.atcTarget; sub = "CIBLE"; }
+            if(m === 'killer') { mainVal = p.killerTarget || "?"; sub = "CIBLE"; let h = "❤️❤️❤️".substring(0, p.lives*2); if(p.lives===0)h="💀"; sub+=` ${h}`; }
+            if(m === 'connect4') { mainVal = ""; sub = (i===0?'JAUNE':'ROUGE'); }
 
             sb.innerHTML += `
-            <div class="player-card ${active?'active':''}">
-                <div class="card-top"><span class="p-name">${p.name}</span><span class="p-score">${p.score}</span></div>
-                <div class="p-stats">${statLine}</div>
+            <div class="player-card ${active?'active':''} ${p.eliminated?'eliminated':''}">
+                <div class="card-top"><span class="p-name" style="color:${m==='connect4'?(i===0?'var(--p1-color)':'var(--p2-color)'):'#fff'}">${p.name}</span><span class="p-score">${mainVal}</span></div>
+                <div class="p-stats">${sub}</div>
                 ${active ? `<div class="dart-history">${badges}</div>` : ''}
             </div>`;
         });
 
-        if(isCric || isCut) {
+        const board = document.getElementById('dartboard-container');
+        const overlay = document.getElementById('game-overlay-container');
+        const missBtn = document.querySelector('.miss-overlay-btn');
+
+        if(state.inputMode === 'graphic') {
+            board.style.display = 'block'; overlay.classList.add('hidden'); missBtn.classList.remove('hidden');
+            
+            if(m === 'connect4') {
+                board.style.display = 'none'; overlay.classList.remove('hidden'); missBtn.classList.add('hidden');
+                let h = `<div class="c4-container"><div class="c4-header-row">`;
+                state.gameData.c4Targets.forEach((t, idx) => h+=`<div class="c4-target-num" onclick="handleThrow(${t},1,'s${t}')">${t}</div>`);
+                h += `</div><div class="c4-board">`;
+                for(let c=0; c<7; c++) {
+                    h += `<div class="c4-col" onclick="handleThrow(${state.gameData.c4Targets[c]},1,'s${state.gameData.c4Targets[c]}')">`;
+                    for(let r=0; r<6; r++) {
+                        const o = state.gameData.c4Grid[c][r];
+                        let t = ''; if(o===0) t='c4-p1'; if(o===1) t='c4-p2';
+                        h += `<div class="c4-cell"><div class="c4-token ${t}"></div></div>`;
+                    }
+                    h += `</div>`;
+                }
+                h += `</div></div>`;
+                overlay.innerHTML = h;
+            } else if(m === 'tictactoe') {
+                board.style.display = 'none'; overlay.classList.remove('hidden'); missBtn.classList.add('hidden');
+                let h = `<div class="ttt-grid">`;
+                TTT_GRID.forEach((val, idx) => {
+                    const owner = state.gameData.tttBoard[idx];
+                    let cls = owner===0?'owned-p1':(owner===1?'owned-p2':'');
+                    h += `<div class="ttt-cell ${cls}" onclick="handleThrow(${val},1,'s${val}')">
+                        ${owner===0?'X':(owner===1?'O':'')}
+                        <span class="ttt-target">${val===25?'B':val}</span>
+                    </div>`;
+                });
+                h += `</div>`;
+                overlay.innerHTML = h;
+            } else {
+                if(!board.querySelector('svg')) genBoard('dartboard-container', true);
+            }
+        }
+
+        if(m.includes('cricket') || m === 'cutthroat') {
             let h = `<table class="cricket-table"><thead><tr><th style="width:30px">#</th>`;
-            state.players.forEach(p => h += `<th>${p.name}</th>`);
+            state.players.forEach(p => h += `<th>${p.name.substring(0,3)}</th>`);
             h += `</tr></thead><tbody>`;
             TARGETS.forEach(t => {
                 const closedRow = state.players.every(p => p.cricket[t] >= 3);
@@ -668,56 +784,38 @@
     }
 
     function renderAdvice() {
-        const box = document.getElementById('advice');
-        document.querySelectorAll('.highlighted').forEach(e => e.classList.remove('highlighted'));
-        box.style.display = 'none';
-        
-        // Advice mainly for Graphic mode X01
-        if(!state.mode.includes('01') || state.winner || state.isPaused || state.inputMode !== 'graphic') return;
-
+        const box = document.getElementById('advice-display');
+        box.innerText = "";
+        if(!state.mode.includes('01') || state.winner || state.isPaused) return;
         const p = state.players[state.turn];
-        const rem = p.score; 
-        const dLeft = 3 - state.darts.length;
-
-        if(rem > 0 && dLeft > 0) {
-            if(rem <= 170 || !state.doubleOut) {
-                const path = solveCheckout(rem, dLeft);
-                if(path) {
-                    box.style.display = 'block'; 
-                    box.innerText = path.map(x=>x.name).join(' - ');
-                    path.forEach(x => {
-                        const el = document.getElementById(x.id);
-                        if(el) el.classList.add('highlighted');
-                    });
-                }
-            }
+        const rem = p.score; const dLeft = 3 - state.darts.length;
+        if(rem > 0 && dLeft > 0 && (rem <= 170 || !state.doubleOut)) {
+            const path = solveCheckout(rem, dLeft);
+            if(path) { box.innerText = path.map(x=>x.name).join(' - '); }
         }
     }
 
-    const OUTS = [];
-    for(let i=1;i<=20;i++) { OUTS.push({id:'d'+i,s:i,m:2,name:'D'+i}); OUTS.push({id:'t'+i,s:i,m:3,name:'T'+i}); OUTS.push({id:'s'+i,s:i,m:1,name:'S'+i}); }
-    OUTS.push({id:'d25',s:25,m:2,name:'DB'}); OUTS.push({id:'s25',s:25,m:1,name:'B'});
-    OUTS.sort((a,b)=>(b.s*b.m)-(a.s*a.m));
-
-    function solveCheckout(rem, dLeft) {
-        if(rem===0) return [];
-        function search(r, d, path) {
-            if(r===0) {
-                const last = path[path.length-1];
-                if(state.doubleOut) return last.m === 2 ? path : null;
-                return path; 
-            }
-            if(r<0 || d===0) return null;
-            if(state.doubleOut && r === 1) return null;
-
-            for(let o of OUTS) {
-                if(o.s*o.m > r) continue;
-                const res = search(r - o.s*o.m, d-1, [...path, o]);
-                if(res) return res;
-            }
-            return null;
-        }
-        return search(rem, dLeft, []);
+    // --- GENERIC ---
+    function genKeypad() {
+        const grid = document.getElementById('keys-grid'); grid.innerHTML = '';
+        for(let i=1; i<=20; i++) grid.innerHTML += `<button class="key-btn" onclick="handleKeypadThrow(${i})">${i}</button>`;
+        grid.innerHTML += `<button class="key-btn key-miss" onclick="handleThrow(0,1,'miss')">MISS</button>`;
+        grid.innerHTML += `<button class="key-btn" style="color:var(--danger)" onclick="handleKeypadThrow(25)">BULL</button>`;
+        grid.innerHTML += `<div style="grid-column: span 3"></div>`;
+    }
+    function toggleMod(m) { state.keypadMod = (state.keypadMod===m)?1:m; updateKeypadVisuals(); }
+    function updateKeypadVisuals() {
+        document.getElementById('btn-mod-2').className = `mod-btn ${state.keypadMod===2?'active-double':''}`;
+        document.getElementById('btn-mod-3').className = `mod-btn ${state.keypadMod===3?'active-triple':''}`;
+    }
+    function handleKeypadThrow(s) {
+        let m = state.keypadMod;
+        if(s===25 && m===3) m=1;
+        let id='';
+        if(s===25) id=m===2?'d25':'s25'; else if(s===0) id='miss';
+        else { if(m===1)id='s'+s; if(m===2)id='d'+s; if(m===3)id='t'+s; }
+        handleThrow(s,m,id);
+        state.keypadMod=1; updateKeypadVisuals();
     }
 
     function genBoard(cid, inter, map=null) {
@@ -727,12 +825,9 @@
         const R_OUT=200, R_D=180, R_TO=135, R_TI=105, R_BO=30, R_BI=13;
         const nums = [20,1,18,4,13,6,10,15,2,17,3,19,7,16,8,11,14,9,12,5];
         let maxH = map ? (Math.max(...Object.values(map))||1) : 1;
-
         function col(id, def) {
             if(!map) return def;
-            const h = map[id]||0;
-            const r = Math.floor(255 * (h/maxH));
-            const b = Math.floor(100 + (155*(1-(h/maxH))));
+            const h = map[id]||0; const r = Math.floor(255 * (h/maxH)); const b = Math.floor(100 + (155*(1-(h/maxH))));
             return `rgb(${r},0,${b})`;
         }
         function arc(rI,rO,sd,ed,fill,id,s,m) {
@@ -746,10 +841,7 @@
         for(let i=0;i<20;i++) {
             const n=nums[i], a1=i*18-9, a2=a1+18, odd=i%2!==0;
             const cW=odd?'#e2e8f0':'#0f172a', cC=odd?'#22c55e':'#ef4444';
-            svg.appendChild(arc(R_D,R_OUT,a1,a2,cC,'d'+n,n,2));
-            svg.appendChild(arc(R_TO,R_D,a1,a2,cW,'so'+n,n,1));
-            svg.appendChild(arc(R_TI,R_TO,a1,a2,cC,'t'+n,n,3));
-            svg.appendChild(arc(R_BO,R_TI,a1,a2,cW,'si'+n,n,1));
+            svg.appendChild(arc(R_D,R_OUT,a1,a2,cC,'d'+n,n,2)); svg.appendChild(arc(R_TO,R_D,a1,a2,cW,'so'+n,n,1)); svg.appendChild(arc(R_TI,R_TO,a1,a2,cC,'t'+n,n,3)); svg.appendChild(arc(R_BO,R_TI,a1,a2,cW,'si'+n,n,1));
             if(!map) {
                 const t=document.createElementNS(ns,"text"); const ang=(i*18)-90;
                 t.setAttribute("x",Math.cos(ang*Math.PI/180)*212); t.setAttribute("y",Math.sin(ang*Math.PI/180)*212+5);
@@ -762,34 +854,38 @@
     }
     
     function endGame() {
-        const h1 = document.getElementById('winner-text');
-        if(state.isSolo) h1.innerText = `TERMINÉ EN ${state.winner.stats.throws} FLÈCHES`;
-        else h1.innerText = `VICTOIRE : ${state.winner.name}`;
-        
-        genBoard('heatmap', false, state.globalStats);
-        const tb = document.getElementById('stats-body'); tb.innerHTML = '';
+        document.getElementById('winner-text').innerText = `VICTOIRE : ${state.winner.name}`;
         const th = document.getElementById('stat-col-head');
-        
-        if(state.mode === 'cutthroat') th.innerText = "MPR / Avg Pts";
-        else if(state.mode.includes('cricket')) th.innerText = "MPR";
-        else th.innerText = "Moyenne (PPD x3)";
+        const m = state.mode;
+        if(m.includes('01')) th.innerText = "Moyenne (PPDx3)";
+        else if(m.includes('cricket')) th.innerText = "MPR";
+        else th.innerText = "Score Final";
 
+        const tb = document.getElementById('stats-body'); tb.innerHTML = '';
         state.players.forEach(p => {
-            let s = "";
-            const rounds = Math.ceil(p.stats.throws/3) || 1;
-            
-            if(state.mode === 'cutthroat') {
-                const mpr = ((p.stats.marks/p.stats.throws)*3).toFixed(2);
-                const ppr = (p.stats.pointsGiven / rounds).toFixed(1);
-                s = `${mpr} / ${ppr} pts`;
-            } else if(state.mode.includes('cricket')) {
-                s = ((p.stats.marks/p.stats.throws)*3).toFixed(2);
-            } else {
-                s = ((p.stats.points/p.stats.throws)*3).toFixed(1);
-            }
+            let s = p.score;
+            if(m.includes('01')) s = ((p.stats.points / p.stats.throws)*3).toFixed(1);
+            else if(m.includes('cricket')) s = ((p.stats.marks / p.stats.throws)*3).toFixed(2);
             tb.innerHTML += `<tr><td>${p.name}</td><td>${s}</td></tr>`;
         });
         show('stats');
+    }
+    function replay() { startGame(); }
+    function show(id) { document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden')); document.getElementById(id).classList.remove('hidden'); }
+    
+    const OUTS = [];
+    for(let i=1;i<=20;i++) { OUTS.push({id:'d'+i,s:i,m:2,name:'D'+i}); OUTS.push({id:'t'+i,s:i,m:3,name:'T'+i}); OUTS.push({id:'s'+i,s:i,m:1,name:'S'+i}); }
+    OUTS.push({id:'d25',s:25,m:2,name:'DB'}); OUTS.push({id:'s25',s:25,m:1,name:'B'});
+    OUTS.sort((a,b)=>(b.s*b.m)-(a.s*a.m));
+    function solveCheckout(rem, dLeft) {
+        if(rem===0) return [];
+        function search(r, d, path) {
+            if(r===0) { const last = path[path.length-1]; if(state.doubleOut) return last.m === 2 ? path : null; return path; }
+            if(r<0 || d===0) return null; if(state.doubleOut && r === 1) return null;
+            for(let o of OUTS) { if(o.s*o.m > r) continue; const res = search(r - o.s*o.m, d-1, [...path, o]); if(res) return res; }
+            return null;
+        }
+        return search(rem, dLeft, []);
     }
 
     init();
